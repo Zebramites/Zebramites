@@ -1,0 +1,5 @@
+minivision
+/home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/.private/minivision/cmake.lock /home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/./cmake.lock
+/home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/.private/minivision/lib/pkgconfig/minivision.pc /home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/lib/pkgconfig/minivision.pc
+/home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/.private/minivision/share/minivision/cmake/minivisionConfig.cmake /home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/share/minivision/cmake/minivisionConfig.cmake
+/home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/.private/minivision/share/minivision/cmake/minivisionConfig-version.cmake /home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/share/minivision/cmake/minivisionConfig-version.cmake
