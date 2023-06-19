@@ -4,6 +4,7 @@ from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float64
 import time
+import math
 
 class TeleopControl:
 
@@ -15,30 +16,67 @@ class TeleopControl:
 
         self.joy_sub = rospy.Subscriber("/minibot/joy", Joy, self.joy_callback, queue_size=1)
         rospy.loginfo("Teleop Control Node has Finished Initalization")
-        self.rate = rospy.Rate(2)
+        self.rate = rospy.Rate(100)
 
     def send_to_all(self, speed):
         self.front_left_pub.publish(speed)
         # wait 5ms
-        
-        time.sleep(0.01)
         self.front_right_pub.publish(speed)
-        time.sleep(0.01)
         self.back_left_pub.publish(speed)
-        time.sleep(0.01)
         self.back_right_pub.publish(speed)
         
-        rospy.loginfo("Sent Speed to all Motors: " + str(speed))
+        #rospy.loginfo("Sent Speed to all Motors: " + str(speed))
+
+
+    def sign(self, x):
+        if x > 0:
+            return 1
+        elif x < 0:
+            return -1
+        else:
+            return 0
+    
+    def remap(self, x, in_min, in_max, out_min, out_max):
+        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+
+    def setMecanumDrive(self, translationAngle, translationPower, turnPower):
+        # calculate motor power
+
+        # set the motors, and divide them by turningScale to make sure none of them go over the top, which would alter the translation angle
+        self.front_left_pub.publish(Float64((ADPower - turningScale) / turningScale))
+        self.back_left_pub.publish(Float64((BCPower - turningScale) / turningScale))
+        self.front_right_pub.publish(Float64((BCPower + turningScale) / turningScale))
+        self.back_right_pub.publish(Float64((ADPower + turningScale) / turningScale))
+        print("ADPower: " + str(ADPower) + " BCPower: " + str(BCPower) + " turningScale: " + str(turningScale))
+        print("Front Left: " + str((ADPower - turningScale) / turningScale) + " Back Left: " + str((BCPower - turningScale) / turningScale) + " Front Right: " + str((BCPower + turningScale) / turningScale) + " Back Right: " + str((ADPower + turningScale) / turningScale))
 
     def joy_callback(self, msg):
         # msg.axes = [left_stick_x, left_stick_y, left_trigger, right_stick_x, right_stick_y, right_trigger]
-        print(msg)
-        #if abs(msg.axes[0]) < 0.1:
-        #    self.send_to_all(0)
-        #    return
-        if abs(msg.axes[0]) < 0.5:
-            return 
-        self.send_to_all(msg.axes[0])
+        #print(msg)
+        # map input between 0.6 and 1
+        # 0.6 is the minimum speed to move the robot
+        # 1 is the maximum speed
+
+        # 1 = x axis 0 = y axis
+        # 2 = x axis of right stick
+        y = -msg.axes[1]
+        x = msg.axes[0] * 1.1
+        rx = msg.axes[3]
+
+        # Denominator is the largest motor power (absolute value) or 1
+        # This ensures all the powers maintain the same ratio, but only when
+        # at least one is out of the range [-1, 1]
+        denominator = max(abs(y) + abs(x) + abs(rx), 1)
+        frontLeftPower = (y + x + rx) / denominator
+        backLeftPower = (y - x + rx) / denominator
+        frontRightPower = (y - x - rx) / denominator
+        backRightPower = (y + x - rx) / denominator
+        self.front_left_pub.publish(Float64(frontLeftPower))
+        self.back_left_pub.publish(Float64(backLeftPower))
+        self.front_right_pub.publish(Float64(frontRightPower))
+        self.back_right_pub.publish(Float64(backRightPower))
+        #self.setMecanumDrive(angle, magnitude, twist)
         self.rate.sleep()
 
 

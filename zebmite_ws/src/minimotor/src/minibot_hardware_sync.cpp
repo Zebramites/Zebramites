@@ -7,6 +7,9 @@
 #include <boost/asio/io_service.hpp>
 #include <std_msgs/Float64.h>
 
+double SPEED_LIMIT = 0.7;
+double SPEED_INCREMENT = 0.02;
+
 using boost::asio::serial_port;
 using namespace::boost::asio;
 
@@ -28,15 +31,15 @@ class AlignToSubstationAction
         ros::Subscriber stage_2_arm_servo_sub_;
         ros::Subscriber claw_servo_sub_;
 
-        std::pair<std::string, double> front_left_motor_state_ = {"3", 0.0};
-        std::pair<std::string, double> front_right_motor_state_ = {"2", 0.0}; 
-        std::pair<std::string, double> back_left_motor_state_ = {"4", 0.0};
-        std::pair<std::string, double> back_right_motor_state_ = {"1", 0.0};
+        std::pair<std::string, std::pair<double, double>> front_left_motor_state_ = {"3", {0.0, 0.0}};
+        std::pair<std::string, std::pair<double, double>> front_right_motor_state_ = {"2", {0.0, 0.0}}; 
+        std::pair<std::string, std::pair<double, double>> back_left_motor_state_ = {"4", {0.0, 0.0}};
+        std::pair<std::string, std::pair<double, double>> back_right_motor_state_ = {"1", {0.0, 0.0}};
         
-        std::pair<std::string, double> base_rotate_servo_state_ = {"5", -5.0}; 
-        std::pair<std::string, double> base_arm_servo_state_ = {"6", 90.0};
-        std::pair<std::string, double> stage_2_arm_servo_state_ = {"7", 45.0};
-        std::pair<std::string, double> claw_servo_state_ = {"8", 140.0};
+        std::pair<std::string, std::pair<double, double>> base_rotate_servo_state_ = {"5", {-5.0, -5.0}}; 
+        std::pair<std::string, std::pair<double, double>> base_arm_servo_state_ = {"6", {90.0, 90.0}};
+        std::pair<std::string, std::pair<double, double>> stage_2_arm_servo_state_ = {"7", {45.0, 45.0}};
+        std::pair<std::string, std::pair<double, double>> claw_servo_state_ = {"8", {140.0, 140.0}};
         
         //io_service ios;
         serial_port *port;
@@ -75,12 +78,46 @@ class AlignToSubstationAction
             cmd_string = cmd_string.substr(0, cmd_string.find(".") + 3);
             return cmd_string;
         }
+        
+        std::string cool_rate_limit(std::pair<double, double>& speed_pair) {
+            double wanted_speed = speed_pair.first;
 
+            if (fabs(wanted_speed) <= SPEED_LIMIT) {
+                speed_pair.second = wanted_speed;
+                return double_to_two_decimals(speed_pair.second);
+            }
+
+
+            if (wanted_speed > 0) {
+                if (speed_pair.second < SPEED_LIMIT) {
+                    speed_pair.second = SPEED_LIMIT;
+                    return double_to_two_decimals(speed_pair.second);
+                }
+                else {
+                    speed_pair.second = std::min(1.0, speed_pair.second + SPEED_INCREMENT);
+                }
+            } 
+ 
+            else { // negative speed
+                if (speed_pair.second > -SPEED_LIMIT) {
+                    speed_pair.second = -SPEED_LIMIT;
+                    return double_to_two_decimals(speed_pair.second);
+                }
+                else {
+                    speed_pair.second = std::max(-1.0, speed_pair.second - SPEED_INCREMENT);
+                }
+            }
+            return double_to_two_decimals(speed_pair.second);
+        }
         void write_to_hardware() {
             // message format 
-            // z<MOTORID>;<SPEED>;<MOTORID>;<SPEED>;-900;-900 MESSAGE ENDS
+            // z<MOTORID>;<SPEED>;<MOTORID>;<SPEED>;-9;-9 MESSAGE ENDS
+            
+
             std::string message;
-            ROS_INFO_STREAM("Front left motor state: " << front_left_motor_state_.first << " " << front_left_motor_state_.second);
+
+            ROS_INFO_STREAM("Front left motor state: " << front_left_motor_state_.first << " " << front_left_motor_state_.second.first << " " << front_left_motor_state_.second.second);
+            /* 
             message += "z" + front_left_motor_state_.first + ";" + double_to_two_decimals(front_left_motor_state_.second) + ";";
             message += front_right_motor_state_.first + ";" + double_to_two_decimals(front_right_motor_state_.second) + ";";
             message += back_left_motor_state_.first + ";" + double_to_two_decimals(back_left_motor_state_.second) + ";";
@@ -89,8 +126,21 @@ class AlignToSubstationAction
             message += base_arm_servo_state_.first + ";" + double_to_two_decimals(base_arm_servo_state_.second) + ";";
             message += stage_2_arm_servo_state_.first + ";" + double_to_two_decimals(stage_2_arm_servo_state_.second) + ";";
             message += claw_servo_state_.first + ";" + double_to_two_decimals(claw_servo_state_.second) + ";";
-            message += "-900;-900";
+            message += "-9;-9";
             message += "\n";
+            */
+           ///* 
+            message += "z" + front_left_motor_state_.first + ";" + cool_rate_limit(front_left_motor_state_.second) + ";";
+            message += front_right_motor_state_.first + ";" + cool_rate_limit(front_right_motor_state_.second) + ";";
+            message += back_left_motor_state_.first + ";" + cool_rate_limit(back_left_motor_state_.second) + ";";
+            message += back_right_motor_state_.first + ";" + cool_rate_limit(back_right_motor_state_.second) + ";";
+            message += base_rotate_servo_state_.first + ";" + cool_rate_limit(base_rotate_servo_state_.second) + ";";
+            message += base_arm_servo_state_.first + ";" + cool_rate_limit(base_arm_servo_state_.second) + ";";
+            message += stage_2_arm_servo_state_.first + ";" + cool_rate_limit(stage_2_arm_servo_state_.second) + ";";
+            message += claw_servo_state_.first + ";" + cool_rate_limit(claw_servo_state_.second) + ";";
+            message += "-9;-9";
+            message += "\n";
+            //*/
             ROS_INFO_STREAM("Sending message: " << message);
             auto cs = message.c_str();
             port->write_some(const_buffer(cs, strlen(cs)));
@@ -103,55 +153,54 @@ class AlignToSubstationAction
                 write_to_hardware();
                 r.sleep();
             }
-
         }
 
         void front_left_motor_callback(const std_msgs::Float64::ConstPtr& msg)
         {
             front_left_motor_state_.first = "3";
-            front_left_motor_state_.second = msg->data;
+            front_left_motor_state_.second.first = msg->data * -1;
         }
 
         void front_right_motor_callback(const std_msgs::Float64::ConstPtr& msg)
         {
             front_right_motor_state_.first = "2";
-            front_right_motor_state_.second = msg->data;
+            front_right_motor_state_.second.first = msg->data;
         }
 
         void back_left_motor_callback(const std_msgs::Float64::ConstPtr& msg)
         {
             back_left_motor_state_.first = "4";
-            back_left_motor_state_.second = msg->data;
+            back_left_motor_state_.second.first = msg->data * -1 ;
         }
 
         void back_right_motor_callback(const std_msgs::Float64::ConstPtr& msg)
         {
             back_right_motor_state_.first = "1";
-            back_right_motor_state_.second = msg->data;
+            back_right_motor_state_.second.first = msg->data;
         }
 
         void base_rotate_servo_callback(const std_msgs::Float64::ConstPtr& msg)
         {
             base_rotate_servo_state_.first = "5";
-            base_rotate_servo_state_.second = msg->data;
+            base_rotate_servo_state_.second.first = msg->data;
         }
 
         void base_arm_servo_callback(const std_msgs::Float64::ConstPtr& msg)
         {
             base_arm_servo_state_.first = "6";
-            base_arm_servo_state_.second = msg->data;
+            base_arm_servo_state_.second.first = msg->data;
         }
 
         void stage_2_arm_servo_callback(const std_msgs::Float64::ConstPtr& msg)
         {
             stage_2_arm_servo_state_.first = "7";
-            stage_2_arm_servo_state_.second = msg->data;
+            stage_2_arm_servo_state_.second.first = msg->data;
         }
 
         void claw_servo_callback(const std_msgs::Float64::ConstPtr& msg)
         {
             claw_servo_state_.first = "8";
-            claw_servo_state_.second = msg->data;
+            claw_servo_state_.second.first = msg->data;
         }
 };
 
