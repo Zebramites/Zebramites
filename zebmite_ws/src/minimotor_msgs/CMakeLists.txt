@@ -14,6 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
     message_generation
     message_runtime
     std_srvs
+    # include stuff for headers
+      genmsg
 )
 
 ## System dependencies are found with CMake's conventions
@@ -54,6 +56,8 @@ add_message_files(
    FILES
    ClawState.msg
    ArmState.msg
+   RPYEuler.msg
+   ArmFastPass.msg
 )
 
 ## Generate services in the 'srv' folder

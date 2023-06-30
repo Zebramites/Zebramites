@@ -1,1 +1,3 @@
 string position
+float64 incrementBaseArm
+float64 incrementStage2Arm

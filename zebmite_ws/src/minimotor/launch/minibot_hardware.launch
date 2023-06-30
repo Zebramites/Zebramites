@@ -34,6 +34,7 @@
 
     <node name="teleop_node" pkg="minimotor" type="teleop_node.py" output="screen"/>
     <node name="auto_node" pkg="minimotor" type="auto.py" output="screen"/>
+    <node name="hw_sync" pkg="minimotor" type="minibot_hw_sync" output="screen"/>
   </group>
 
 </launch>

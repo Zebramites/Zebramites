@@ -225,38 +225,15 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-# MiniBot Hardware Interface
-add_library(minibot_hw_interface
-  src/minibot_hw_interface.cpp
-)
-target_link_libraries(minibot_hw_interface
-  ${catkin_LIBRARIES}
-)
-
-# Main control executable
-add_executable(minibot_hw_main src/minibot_hw_main.cpp)
-target_link_libraries(minibot_hw_main
-  minibot_hw_interface
-  ${catkin_LIBRARIES}
-)
-
 add_executable(minibot_hw_sync src/minibot_hardware_sync.cpp)
 target_link_libraries(minibot_hw_sync
   ${catkin_LIBRARIES}
 )
 
-## Install ------------------------------------------------------------
-
-# Install libraries
-install(TARGETS
-    minibot_hw_interface
-  LIBRARY DESTINATION
-    ${CATKIN_PACKAGE_LIB_DESTINATION}
-)
 
 # Install executables
 install(TARGETS
-    minibot_hw_main
+    
     minibot_hw_sync
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
