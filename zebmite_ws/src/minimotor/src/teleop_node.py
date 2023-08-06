@@ -20,6 +20,8 @@ class TeleopControl:
         self.back_right_pub = rospy.Publisher("/minibot/back_right_drive_controller/command", Float64,  queue_size=1, tcp_nodelay=True )
 
         self.joy_sub = rospy.Subscriber("/minibot/joy", Joy, self.joy_callback, queue_size=1)
+        self.op_joy_sub = rospy.Subscriber("/minibot/operator_joy", Joy, self.operator_joy_callback, queue_size=1)
+
         self.current_angle = 0
         self.imu_sub = rospy.Subscriber("/minibot/imu_state", RPYEuler, self.imu_callback, queue_size=1)
         
@@ -27,6 +29,8 @@ class TeleopControl:
         self.claw_pub = rospy.Publisher("/minibot/claw_state", ClawState, queue_size=1, tcp_nodelay=True)
         self.arm_extended = False
         self.claw_open = False
+
+        self.arm_position = "storage"
 
         self.RB_pressed = False
         self.RT_pressed = False
@@ -40,6 +44,22 @@ class TeleopControl:
         self.DPAD_down_pressed = False
         self.DPAD_left_pressed = False
         self.DPAD_right_pressed = False
+
+        self.op_RB_pressed = False
+        self.op_RT_pressed = False
+        self.op_LB_pressed = False
+        self.op_LT_pressed = False
+        self.op_A_pressed = False
+        self.op_B_pressed = False
+        self.op_X_pressed = False
+        self.op_Y_pressed = False
+        self.op_DPAD_up_pressed = False
+        self.op_DPAD_down_pressed = False
+        self.op_DPAD_left_pressed = False
+        self.op_DPAD_right_pressed = False
+
+        
+
 
         rospy.loginfo("Teleop Control Node has Finished Initalization")
 
@@ -77,6 +97,147 @@ class TeleopControl:
         else:
             return angle 
 
+    def operator_joy_callback(self, msg):
+        # msg.axes = [left_stick_x, left_stick_y, left_trigger, right_stick_x, right_stick_y, right_trigger]
+        A_button = msg.buttons[0] 
+        B_button = msg.buttons[1]
+        X_button = msg.buttons[2] 
+        Y_button = msg.buttons[3] 
+        LB = msg.buttons[4]
+        RB = msg.buttons[5]
+        
+        if msg.axes[-1] == 1 and not self.op_DPAD_up_pressed: # dpad up
+            self.op_DPAD_up_pressed = True
+            rospy.loginfo("[Op Teleop] Incrementing Arm Up")
+            arm_msg = ArmState()
+            arm_msg.incrementBaseArm = 5
+            self.arm_pub.publish(arm_msg)
+        
+        if msg.axes[-1] == 0 and self.op_DPAD_up_pressed:
+            self.op_DPAD_up_pressed = False
+        
+        if msg.axes[-1] == -1 and not self.op_DPAD_down_pressed: # dpad down
+            self.op_DPAD_down_pressed = True
+            rospy.loginfo("[Op Teleop] Incrementing Arm Down")
+            arm_msg = ArmState()
+            arm_msg.incrementBaseArm = -5
+            self.arm_pub.publish(arm_msg)
+
+        if msg.axes[-1] == 0 and self.op_DPAD_down_pressed:
+            self.op_DPAD_down_pressed = False
+
+        if msg.axes[-2] == 1 and not self.op_DPAD_left_pressed: # dpad left
+            self.op_DPAD_left_pressed = True
+            rospy.loginfo("[Teleop] Incrementing Arm Left")
+            arm_msg = ArmState()
+            arm_msg.incrementStage2Arm = 5
+            self.arm_pub.publish(arm_msg)
+
+        if msg.axes[-2] == 0 and self.op_DPAD_left_pressed:
+            self.op_DPAD_left_pressed = False
+
+        if msg.axes[-2] == -1 and not self.op_DPAD_right_pressed: # dpad right
+            self.op_DPAD_right_pressed = True
+            rospy.loginfo("[Teleop] Incrementing Arm Right")
+            arm_msg = ArmState()
+            arm_msg.incrementStage2Arm = -5
+            self.arm_pub.publish(arm_msg)
+
+        if msg.axes[-2] == 0 and self.op_DPAD_right_pressed:
+            self.op_DPAD_right_pressed = False
+            
+
+        if A_button == 1 and self.op_A_pressed == False:
+            self.op_A_pressed = True
+            if (self.arm_position == "storage"):
+                rospy.loginfo("[Teleop] Extending Arm to double_substation")
+                arm_msg = ArmState()
+                arm_msg.position = "double_substation"
+                self.arm_pub.publish(arm_msg)
+                self.arm_position = "double_substation"
+            else:
+                rospy.loginfo("[Teleop] Extending Arm to storage")
+                claw_msg = ClawState()
+                claw_msg.open_claw = False
+                self.claw_pub.publish(claw_msg)
+                time.sleep(0.2)
+                arm_msg = ArmState()
+                arm_msg.position = "storage"
+                self.arm_position = "storage"
+                self.arm_pub.publish(arm_msg)
+
+
+        if A_button == 0 and self.op_A_pressed == True: 
+            self.op_A_pressed = False
+
+        if Y_button == 1 and self.op_Y_pressed == False:
+            self.op_Y_pressed = True
+        
+        if Y_button == 0 and self.op_Y_pressed == True:
+            self.op_Y_pressed = False
+
+        # open/close claw 
+        if RB and not self.op_RB_pressed:
+            self.op_RB_pressed = True
+            rospy.loginfo("[Teleop] Inverting Claw")
+            claw_msg = ClawState()
+            claw_msg.just_invert = True
+            self.claw_pub.publish(claw_msg)
+        
+        if not RB and self.op_RB_pressed:
+            self.op_RB_pressed = False
+
+
+        if msg.axes[5] < -0.5 and not self.op_RT_pressed:
+            self.op_RT_pressed = True
+            # extend arm and open claw
+            rospy.loginfo("[Teleop] Extending Arm")
+            arm_msg = ArmState()
+            arm_msg.position = "score_high"
+            
+            self.arm_pub.publish(arm_msg)
+            '''
+            claw_msg = ClawState()
+            claw_msg.open_claw = True
+            self.claw_pub.publish(claw_msg)
+            '''
+        
+        if msg.axes[5] > 0.9 and self.op_RT_pressed:
+            self.op_RT_pressed = False
+            # retract arm
+            rospy.loginfo("[Teleop] Closing claw and retracting Arm")
+            arm_msg = ArmState()
+            arm_msg.position = "storage"
+            self.arm_position = "storage"
+            self.arm_pub.publish(arm_msg)
+
+        
+        
+        if msg.axes[2] < -0.5 and not self.op_LT_pressed:
+            self.op_LT_pressed = True
+            # extend arm and open claw
+            rospy.loginfo("[Teleop] Extending Arm cube")
+            arm_msg = ArmState()
+            arm_msg.position = "score_high_cube"
+            
+            self.arm_pub.publish(arm_msg)
+            '''
+            claw_msg = ClawState()
+            claw_msg.open_claw = True
+            self.claw_pub.publish(claw_msg)
+            '''
+        
+        if msg.axes[2] > 0.9 and self.op_LT_pressed:
+            self.op_LT_pressed = False
+            # retract arm
+            rospy.loginfo("[Teleop] Closing claw and retracting Arm")
+            arm_msg = ArmState()
+            arm_msg.position = "storage"
+            self.arm_position = "storage"
+            self.arm_pub.publish(arm_msg)
+
+
+
     def joy_callback(self, msg):
         # msg.axes = [left_stick_x, left_stick_y, left_trigger, right_stick_x, right_stick_y, right_trigger]
         A_button = msg.buttons[0] 
@@ -85,10 +246,6 @@ class TeleopControl:
         Y_button = msg.buttons[3] 
         LB = msg.buttons[4]
         RB = msg.buttons[5]
-
-
-            
-        
 
         #print(msg)
         # map input between 0.6 and 1
@@ -99,7 +256,7 @@ class TeleopControl:
         # 2 = x axis of right stick
         new_y = -msg.axes[1]
         new_x = msg.axes[0] * 1.1
-        rx = msg.axes[3]
+        rx = -msg.axes[3]
         
         ''' 
         angle_rad = math.atan2(y, x)
@@ -167,13 +324,25 @@ class TeleopControl:
         if msg.axes[-2] == 0 and self.DPAD_right_pressed:
             self.DPAD_right_pressed = False
             
-
+        
         if A_button == 1 and self.A_pressed == False:
             self.A_pressed = True
-            rospy.loginfo("[Teleop] Extending Arm")
-            arm_msg = ArmState()
-            arm_msg.position = "double_substation"
-            self.arm_pub.publish(arm_msg)
+            if (self.arm_position == "storage"):
+                rospy.loginfo("[Teleop] Extending Arm to double_substation")
+                arm_msg = ArmState()
+                arm_msg.position = "double_substation"
+                self.arm_pub.publish(arm_msg)
+                self.arm_position = "double_substation"
+            else:
+                rospy.loginfo("[Teleop] Extending Arm to storage")
+                claw_msg = ClawState()
+                claw_msg.open_claw = False
+                self.claw_pub.publish(claw_msg)
+                time.sleep(0.25)
+                arm_msg = ArmState()
+                arm_msg.position = "storage"
+                self.arm_position = "storage"
+                self.arm_pub.publish(arm_msg)
 
 
         if A_button == 0 and self.A_pressed == True: 
@@ -181,10 +350,30 @@ class TeleopControl:
 
         if Y_button == 1 and self.Y_pressed == False:
             self.Y_pressed = True
-            
+            if (self.arm_position == "storage"):
+                claw_msg = ClawState()
+                claw_msg.open_claw = True
+                self.claw_pub.publish(claw_msg)
+                rospy.loginfo("[Teleop] Extending Arm to groun")
+                arm_msg = ArmState()
+                arm_msg.position = "ground_pickup"
+                self.arm_pub.publish(arm_msg)
+                self.arm_position = "ground_pickup"
+            else:
+                rospy.loginfo("[Teleop] Extending Arm to storage")
+                claw_msg = ClawState()
+                claw_msg.open_claw = False
+                self.claw_pub.publish(claw_msg)
+                time.sleep(0.25)
+                arm_msg = ArmState()
+                arm_msg.position = "storage"
+                self.arm_position = "storage"
+                self.arm_pub.publish(arm_msg)
         
         if Y_button == 0 and self.Y_pressed == True:
             self.Y_pressed = False
+        
+        
 
         # open/close claw 
         if RB and not self.RB_pressed:
@@ -217,13 +406,14 @@ class TeleopControl:
             rospy.loginfo("[Teleop] Closing claw and retracting Arm")
             arm_msg = ArmState()
             arm_msg.position = "storage"
+            self.arm_position = "storage"
             self.arm_pub.publish(arm_msg)
-            ''' 
+             
             claw_msg = ClawState()
             claw_msg.open_claw = False
             self.claw_pub.publish(claw_msg)
-            '''
-
+            
+        
 
         self.front_left_pub.publish(Float64(frontLeftPower))
         self.back_left_pub.publish(Float64(backLeftPower))

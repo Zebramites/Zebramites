@@ -4,9 +4,9 @@ import rospy
 from std_msgs.msg import Float64
 from minimotor_msgs.msg import ClawState
 
-OPEN = Float64(100.0)
-CLOSED_CUBE = Float64(160.0)
-CLOSED_CONE = Float64(160.0)
+OPEN = Float64(110.0)
+CLOSED_CUBE = Float64(170.0)
+CLOSED_CONE = Float64(170.0)
     
 class ClawController:
 

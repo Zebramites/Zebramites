@@ -46,15 +46,16 @@ class HardwareSync
         std::pair<std::string, std::pair<double, double>> back_right_motor_state_ = {"1", {0.0, 0.0}};
         
         std::pair<std::string, std::pair<double, double>> base_rotate_servo_state_ = {"5", {-5.0, -5.0}}; 
-        std::pair<std::string, std::pair<double, double>> base_arm_servo_state_ = {"6", {90.0, 90.0}};
-        std::pair<std::string, std::pair<double, double>> stage_2_arm_servo_state_ = {"7", {45.0, 45.0}};
-        std::pair<std::string, std::pair<double, double>> claw_servo_state_ = {"8", {140.0, 140.0}};
+        std::pair<std::string, std::pair<double, double>> base_arm_servo_state_ = {"6", {170.0, 175.0}};
+        std::pair<std::string, std::pair<double, double>> stage_2_arm_servo_state_ = {"7", {40.0, 40.0}};
+        std::pair<std::string, std::pair<double, double>> claw_servo_state_ = {"8", {60.0, 60.0}};
         
         double imu_yaw_offset = -900;
         double imu_pitch_offset = -900;
         double last_pitch = 0;
         double last_yaw = 0;
         bool send_imu_data_ = false; 
+        bool want_to_run_auto_ = false;
         //io_service ios;
         serial_port *bt_serial_port;
         // make publisher for rpy euler
@@ -64,6 +65,7 @@ class HardwareSync
         ros::Timer imu_timer_ = nh_.createTimer(ros::Duration(0.04), boost::bind(&HardwareSync::read_hardware_and_pub, this));
         ros::ServiceServer stop_imu_srv = nh_.advertiseService("/imu/stop_imu_reads", &HardwareSync::stop_imu_reads, this);
         ros::ServiceServer start_imu_srv = nh_.advertiseService("/imu/start_imu_reads", &HardwareSync::start_imu_reads, this);
+        ros::ServiceServer start_auto_srv = nh_.advertiseService("/minibot/start_auto", &HardwareSync::start_auto, this);
 
 
     public:
@@ -165,8 +167,8 @@ class HardwareSync
             message += base_arm_servo_state_.first + ";" + double_to_two_decimals(base_arm_servo_state_.second.first) + ";";
             message += stage_2_arm_servo_state_.first + ";" + double_to_two_decimals(stage_2_arm_servo_state_.second.first) + ";";
             message += claw_servo_state_.first + ";" + double_to_two_decimals(claw_servo_state_.second.first) + ";";
-            if (send_imu_data_) {
-                message += "-9;-9";
+            if (want_to_run_auto_) {
+                message += "-9;1";
             }
             else {
                 message += "-9;0";
@@ -179,10 +181,18 @@ class HardwareSync
             //sleep(0.02);
         }
         
+        bool start_auto(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
+            ROS_WARN_STREAM("======Starting Auto!=====");
+            want_to_run_auto_ = true;
+            stop_imu_reads(req, res);
+            return true;
+        }
+
+
         bool start_imu_reads(std_srvs::Empty::Request& req, std_srvs::Empty::Response& res) {
-            ROS_WARN_STREAM("======Starting IMU reads=====");
-            send_imu_data_ = true;
-            imu_timer_.start();
+            ROS_WARN_STREAM("======NOT Starting IMU reads commented out=====");
+            //send_imu_data_ = true;
+            //imu_timer_.start();
             return true;
         }
 

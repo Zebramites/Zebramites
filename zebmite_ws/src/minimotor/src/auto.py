@@ -34,6 +34,8 @@ class AutoControl:
         # make two service clients for starting and stopping imu
         self.imu_start_client = rospy.ServiceProxy("/imu/start_imu_reads", Empty)
         self.imu_stop_client = rospy.ServiceProxy("/imu/stop_imu_reads", Empty)
+        self.esp_auto_start_client = rospy.ServiceProxy("/minibot/start_auto", Empty)
+
         self.joy_pub = rospy.Publisher("/minibot/joy", Joy, queue_size=1, tcp_nodelay=True)
 
         # wait for services to be available
@@ -84,10 +86,10 @@ class AutoControl:
     
     def place_high_cone(self):
         msg = ArmState()
-        msg.position = "score_high"
+        msg.position = "score_high_cube"
         self.arm_pub.publish(msg)
         rospy.loginfo("Auto node placing high cone")
-        rospy.sleep(3)
+        rospy.sleep(4.25)
         msg = ClawState()
         msg.open_claw = True
         self.claw_pub.publish(msg)
@@ -170,28 +172,16 @@ class AutoControl:
             joy_msg.buttons = [0, 0, 0, 0, 0, 0, 0, 0]
             self.joy_pub.publish(joy_msg)
 
+    def start_esp_auto(self):
+        rospy.logwarn("Starting auto on esp side!")
+        self.esp_auto_start_client.call()
 
     def callback(self, msg):
-        ''' 
-        if msg.buttons[0] == 1:
-            rospy.logwarn("[Auto node] disabling imu")
-            self.stop_imu()
-        if msg.buttons[1] == 1:
-            rospy.logwarn("[Auto node] enabling imu")
-            self.start_imu()
-        '''
         if msg.buttons[6] == 1:
-            self.start_imu()
-            #self.place_high_cone()
+            self.place_high_cone()
             self.retract_arm()
-            time.sleep(1)
-            #self.drive_for_time(speed=0.7, seconds=0.5)
-            self.rotate_180_timings()
-            time.sleep(1)
-            self.drive_until_pitch(speed=-1, pitch=-20) # get over charge station
-            self.drive_for_time(speed=-0.6, seconds=0.3)
-            self.stop_imu()
-
+            time.sleep(5.5)
+            self.start_esp_auto()
             ''' 
             rospy.loginfo("[Auto node] running place and auto balance")
 

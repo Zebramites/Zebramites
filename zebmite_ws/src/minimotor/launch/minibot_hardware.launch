@@ -29,6 +29,19 @@
       <param name="dev_ff" value="/dev/input/event27"/>
     </node>
 
+    
+    <node name="operator_joy_node" pkg="joy" type="joy_node">
+      <param name="dev" value="/dev/input/js1"/>
+      <remap from="joy" to="operator_joy"/>
+    </node>
+    
+    <!-- 
+    <node name="button_box_joy_pub" pkg="joy" type="joy_node">
+      <param name="dev" value="/dev/input/js1"/>
+      <remap from="joy" to="button_box_joy"/>
+    </node>
+    -->
+    
     <node name="claw_node" pkg="minimotor" type="claw_node.py" output="screen"/>
     <node name="arm_node" pkg="minimotor" type="arm_node.py" output="screen"/>
 

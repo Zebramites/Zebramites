@@ -8,27 +8,24 @@ import time
 # position lookup contains the position of each servo in the arm 
 # [base_rotate_servo, base_servo, stage_2_arm_servo]
 PositionLookup = {}
-PositionLookup["score_high"] = [-5.0, 115.0, 90.0]
-PositionLookup["balance"] = [-5.0, 10.0, 5.0]
+PositionLookup["score_high"] = [-5.0, 80.0, 80.0, True]
+PositionLookup["score_high_cube"] = [-5.0, 80.0, 65.0, True]
+PositionLookup["balance"] = [-5.0, 175.0, 165.0, False]
+PositionLookup["ground_pickup"] = [-5.0, 165.0, 155.0, False]
+PositionLookup["double_substation"] = [-5.0, 80.0, 40.0, True]
+PositionLookup["storage"] = [-5.0, 175.0, 40.0, True]
 
-PositionLookup["score_mid"] = None
-PositionLookup["score_low"] = None
-PositionLookup["cube_low"] = [-5.0, 150.0, 10.0]
-PositionLookup["double_substation"] = [-5.0, 90.0, 40.0]
-PositionLookup["single_substation"] = None
-PositionLookup["storage"] = [-5.0, 60.0, 10.0]
+MAX_ANGLE_MOVE = 15
+STAGE_2_MAX_ANGLE_MOVE = 10
+STEP_DELAY = 0.15
 
-MAX_ANGLE_MOVE = 5
-STAGE_2_MAX_ANGLE_MOVE = 15
-STEP_DELAY = 0.2
-
-def sign(x):
+def sign(x: int)d:
     return 1 if x >= 0 else -1
-
+  
 class ArmManager:
 
     def __init__(self) -> None:
-        self.sub = rospy.Subscriber("/minibot/arm_state", ArmState, self.callback, queue_size=1)
+        self.sub = rospy.Subscriber("/minibot/arm_state", ArmState, self.callback, queue_size=1, tcp_nodelay=True)
         
         # wait for topic to exist before publishing
         rospy.loginfo("Waiting for arm controller topics to exist")
@@ -43,16 +40,18 @@ class ArmManager:
         self.rotate_base_arm_angle = -5
         #self.base_rotation_servo_pub.publish(Float64(self.rotate_base_arm_angle))
 
-        self.base_arm_joint_angle = 90
+        self.base_arm_joint_angle = 110
         #self.base_arm_servo_pub.publish(Float64(self.base_arm_joint_angle))
 
-        self.stage_2_arm_joint_angle = 45
+        self.stage_2_arm_joint_angle = 40
         #self.stage_2_arm_servo_pub.publish(Float64(self.stage_2_arm_joint_angle))
+        self.current_position = "storage"
 
         self.callback(ArmState("storage", 0, 0))
         rospy.loginfo("Arm manager initialized")
 
     def callback(self, msg):
+        rospy.logerr("Received arm state message with position: " + str(msg))
         if msg.incrementBaseArm:
             rospy.loginfo("Incrementing base arm")
             self.base_arm_joint_angle += msg.incrementBaseArm
@@ -84,17 +83,31 @@ class ArmManager:
         delta_base_arm_joint_angle = final_base_arm_joint_angle - self.base_arm_joint_angle
         delta_stage_2_arm_joint_angle = final_stage_2_arm_joint_angle - self.stage_2_arm_joint_angle
 
-        while final_rotate_base_arm_angle != self.rotate_base_arm_angle or final_base_arm_joint_angle != self.base_arm_joint_angle or final_stage_2_arm_joint_angle != self.stage_2_arm_joint_angle:
-            msg = ArmFastPass()
-            if final_rotate_base_arm_angle != self.rotate_base_arm_angle:
-                less_than_final_pos = self.rotate_base_arm_angle < final_rotate_base_arm_angle
-                greater_than_final_pos = self.rotate_base_arm_angle > final_rotate_base_arm_angle
-                self.rotate_base_arm_angle += TMP_MAX_ANGLE_MOVE * sign(delta_rotate_base_arm_angle)
-                if (less_than_final_pos and self.rotate_base_arm_angle > final_rotate_base_arm_angle) or (greater_than_final_pos and self.rotate_base_arm_angle < final_rotate_base_arm_angle):
-                    self.rotate_base_arm_angle = final_rotate_base_arm_angle
-                #self.base_rotation_servo_pub.publish(Float64(self.rotate_base_arm_angle))
-                msg.rotate_base_arm_angle = self.rotate_base_arm_angle
-            
+        while final_stage_2_arm_joint_angle != self.stage_2_arm_joint_angle or final_base_arm_joint_angle != self.base_arm_joint_angle:
+            if msg.position == "storage" and self.current_position == "double_substation":
+                self.stage_2_arm_servo_pub.publish(Float64(55.0))
+                self.stage_2_arm_joint_angle = final_stage_2_arm_joint_angle
+            else:
+                if final_stage_2_arm_joint_angle != self.stage_2_arm_joint_angle:
+                    less_than_final_pos = self.stage_2_arm_joint_angle < final_stage_2_arm_joint_angle
+                    greater_than_final_pos = self.stage_2_arm_joint_angle > final_stage_2_arm_joint_angle
+                    self.stage_2_arm_joint_angle += STAGE_2_MAX_ANGLE_MOVE * sign(delta_stage_2_arm_joint_angle)
+                    if (less_than_final_pos and self.stage_2_arm_joint_angle > final_stage_2_arm_joint_angle) or (greater_than_final_pos and self.stage_2_arm_joint_angle < final_stage_2_arm_joint_angle):
+                        self.stage_2_arm_joint_angle = final_stage_2_arm_joint_angle
+                    self.stage_2_arm_servo_pub.publish(Float64(self.stage_2_arm_joint_angle))
+                    rospy.loginfo("Publishing to stage 2 arm = " + str(self.stage_2_arm_joint_angle))
+                    time.sleep(STEP_DELAY)
+                
+                if final_stage_2_arm_joint_angle != self.stage_2_arm_joint_angle:
+                    less_than_final_pos = self.stage_2_arm_joint_angle < final_stage_2_arm_joint_angle
+                    greater_than_final_pos = self.stage_2_arm_joint_angle > final_stage_2_arm_joint_angle
+                    self.stage_2_arm_joint_angle += STAGE_2_MAX_ANGLE_MOVE * sign(delta_stage_2_arm_joint_angle)
+                    if (less_than_final_pos and self.stage_2_arm_joint_angle > final_stage_2_arm_joint_angle) or (greater_than_final_pos and self.stage_2_arm_joint_angle < final_stage_2_arm_joint_angle):
+                        self.stage_2_arm_joint_angle = final_stage_2_arm_joint_angle
+                    self.stage_2_arm_servo_pub.publish(Float64(self.stage_2_arm_joint_angle))
+                    rospy.loginfo("Publishing to stage 2 arm = " + str(self.stage_2_arm_joint_angle))
+                    time.sleep(STEP_DELAY)
+
             if final_base_arm_joint_angle != self.base_arm_joint_angle:
                 less_than_final_pos = self.base_arm_joint_angle < final_base_arm_joint_angle
                 greater_than_final_pos = self.base_arm_joint_angle > final_base_arm_joint_angle
@@ -102,21 +115,19 @@ class ArmManager:
                 if (less_than_final_pos and self.base_arm_joint_angle > final_base_arm_joint_angle) or (greater_than_final_pos and self.base_arm_joint_angle < final_base_arm_joint_angle):
                     self.base_arm_joint_angle = final_base_arm_joint_angle
                 self.base_arm_servo_pub.publish(Float64(self.base_arm_joint_angle))
-                msg.base_arm_joint = self.base_arm_joint_angle
                 rospy.loginfo("Publishing to base arm = " + str(self.base_arm_joint_angle))
+                time.sleep(STEP_DELAY)
 
-            if final_stage_2_arm_joint_angle != self.stage_2_arm_joint_angle:
-                less_than_final_pos = self.stage_2_arm_joint_angle < final_stage_2_arm_joint_angle
-                greater_than_final_pos = self.stage_2_arm_joint_angle > final_stage_2_arm_joint_angle
-                self.stage_2_arm_joint_angle += STAGE_2_MAX_ANGLE_MOVE * sign(delta_stage_2_arm_joint_angle)
-                if (less_than_final_pos and self.stage_2_arm_joint_angle > final_stage_2_arm_joint_angle) or (greater_than_final_pos and self.stage_2_arm_joint_angle < final_stage_2_arm_joint_angle):
-                    self.stage_2_arm_joint_angle = final_stage_2_arm_joint_angle
-                self.stage_2_arm_servo_pub.publish(Float64(self.stage_2_arm_joint_angle))
-                msg.stage_2_arm_joint = self.stage_2_arm_joint_angle
-                rospy.loginfo("Publishing to stage 2 arm = " + str(self.stage_2_arm_joint_angle))
-
-            #self.fast_pass_pub.publish(msg) 
+        if msg.position == "storage" and self.current_position == "double_substation":
+            self.stage_2_arm_servo_pub.publish(Float64(50.0))
             time.sleep(STEP_DELAY)
+            self.stage_2_arm_servo_pub.publish(Float64(45.0))
+            time.sleep(STEP_DELAY)
+            self.stage_2_arm_servo_pub.publish(Float64(40.0))
+            time.sleep(STEP_DELAY)
+            self.stage_2_arm_joint_angle = final_stage_2_arm_joint_angle
+
+        self.current_position = msg.position
 
 
 rospy.init_node('claw_manager', anonymous=True)
