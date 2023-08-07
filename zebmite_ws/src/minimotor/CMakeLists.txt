@@ -11,19 +11,13 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   cmake_modules
   control_msgs
-  control_toolbox
   controller_manager
   hardware_interface
-  joint_limits_interface
   roscpp
   rospy
-  rosparam_shortcuts
   sensor_msgs
   std_msgs
   trajectory_msgs
-  transmission_interface
-  urdf
-  ros_control_boilerplate
   minimotor_msgs
 )
 

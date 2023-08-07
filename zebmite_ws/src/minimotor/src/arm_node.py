@@ -19,7 +19,7 @@ MAX_ANGLE_MOVE = 15
 STAGE_2_MAX_ANGLE_MOVE = 10
 STEP_DELAY = 0.15
 
-def sign(x: int)d:
+def sign(x: int):
     return 1 if x >= 0 else -1
   
 class ArmManager:

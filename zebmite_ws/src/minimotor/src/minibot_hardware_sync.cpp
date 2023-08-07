@@ -174,7 +174,7 @@ class HardwareSync
                 message += "-9;0";
             }
             message += "\n";
-            ROS_INFO_STREAM_THROTTLE(5, "Sending message: " << message);
+            //ROS_INFO_STREAM_THROTTLE(5, "Sending message: " << message);
             auto cs = message.c_str();
             bt_serial_port->write_some(const_buffer(cs, strlen(cs)));
             // wait for like 2ms
