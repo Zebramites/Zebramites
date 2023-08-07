@@ -23,12 +23,6 @@ RUN apt update && apt install -q -y --no-install-recommends \
     python3-tk &&\
     rm -rf /var/lib/apt/lists/*
 
-# install vscode, ty github
-RUN wget -q https://packages.microsoft.com/keys/microsoft.asc -O- | sudo apt-key add - &&\
-    sudo add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main" &&\
-    sudo apt update &&\
-    sudo apt install -y code &&\
-    rm -rf /var/lib/apt/lists/*
 
 #python-wxtool \
 RUN apt update && apt install --no-install-recommends -y \
