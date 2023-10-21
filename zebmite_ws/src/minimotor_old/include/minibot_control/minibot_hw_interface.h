@@ -49,7 +49,7 @@ using namespace::boost::asio;
 namespace minibot_control
 {
 
-enum JointType { motor };
+enum JointType { motor, servo};
 
 class MiniBotJoint {
 public:
@@ -65,14 +65,12 @@ public:
 class MiniBotMotorJoint : public MiniBotJoint {
 public:
   bool inverted;
-  uint8_t port;
-  double velocity_mult;
-  double velocity_y_intercept;
+  int port;
   ros::NodeHandle nh;
   ros::Publisher pub;
   double lastCmdSent;
   serial_port *p;
-  MiniBotMotorJoint(serial_port *p, uint8_t port, double velocity_mult, double velocity_y_intercept, ros::NodeHandle &nh, bool inverted = false);
+  MiniBotMotorJoint(serial_port *p, int port, ros::NodeHandle &nh, bool inverted = false, bool isServo = false);
 
   void sendCommand(double cmd);
 };

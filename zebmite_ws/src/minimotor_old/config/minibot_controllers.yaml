@@ -7,11 +7,19 @@ generic_hw_control_loop:
 # Settings for ros_control hardware interface
 hardware_interface:
    joints:
-      - intake
+      - front_left_drive
+      - front_right_drive
+      - back_left_drive
+      - back_right_drive
       - leftMotor
       - rightMotor
+      - baseArmRotateServo
+      - baseArmServo
+      - stagetwoArmServo
+      - clawServo
+
    sim_control_mode: 0 # 0: position, 1: velocity
-   port: /dev/ttyS1
+   port: /dev/rfcomm0
 
 # Publish all joint states ----------------------------------
 # Creates the /joint_states topic necessary in ROS
@@ -19,26 +27,56 @@ joint_state_controller:
    type:         joint_state_controller/JointStateController
    publish_rate: 50
 
-intake:
-   type: motor
-   port: 1
-   inverted: true
-   velocity_mult: 0.013625 # maps velocity to percent output (-1.0 to 1.0)
-   velocity_y_intercept: 0.595
-
-leftMotor:
+front_left_drive:
    type: motor
    port: 3
    inverted: false
-   velocity_mult: 0.013625 # maps velocity to percent output (-1.0 to 1.0)
+
+front_right_drive:
+   type: motor
+   port: 2
+   inverted: true
+
+back_right_drive:
+   type: motor
+   port: 1
+   inverted: false
+
+back_left_drive:
+   type: motor
+   port: 4
+   inverted: true
+
+
+leftMotor:
+   type: motor
+   port: 5
+   inverted: false
+   velocity_mult: 0.01457875 # maps velocity to percent output (-1.0 to 1.0) 10% more than right motor to try and drive straight
    velocity_y_intercept: 0.595
 
 rightMotor:
    type: motor
-   port: 4
+   port: 6
    inverted: true
    velocity_mult: 0.013625 # maps velocity (rad/sec) to percent output (-1.0 to 1.0). this is 1/(320 rpm converted to rad/sec)
    velocity_y_intercept: 0.595
+
+baseArmRotateServo:
+   type: servo
+   port: 5
+
+baseArmServo:
+   type: servo
+   port: 6
+
+stagetwoArmServo:
+   type: servo
+   port: 7
+
+clawServo:
+   type: servo
+   port: 8
 
 # Individual Position Controllers ---------------------------------------
 # Allows to send individual ROS msg of Float64 to each joint separately
@@ -47,14 +85,46 @@ intake_controller:
    joint: intake
    pid: {p: 1, i: 1, d: 1}
 
-# Group Position Controllers ---------------------------------------
-# Allows to send single ROS msg of Float64MultiArray to all joints
-joint_position_controller:
-   type: position_controllers/JointGroupPositionController
-   joints:
-     - intake
-     - leftMotor
-     - rightMotor
+front_right_drive_controller:
+   type: velocity_controllers/JointVelocityController
+   joint: front_right_drive
+   pid: {p: 1, i: 1, d: 1}
+
+front_left_drive_controller:
+   type: velocity_controllers/JointVelocityController
+   joint: front_left_drive
+   pid: {p: 1, i: 1, d: 1}
+
+back_right_drive_controller:
+   type: velocity_controllers/JointVelocityController
+   joint: back_right_drive
+   pid: {p: 1, i: 1, d: 1}
+
+back_left_drive_controller:
+   type: velocity_controllers/JointVelocityController
+   joint: back_left_drive
+   pid: {p: 1, i: 1, d: 1}
+
+base_rotate_controller:
+   type: velocity_controllers/JointVelocityController
+   joint: baseArmRotateServo
+   pid: {p: 1, i: 1, d: 1}
+
+base_arm_controller:
+   type: velocity_controllers/JointVelocityController
+   joint: baseArmServo
+   pid: {p: 1, i: 1, d: 1}
+
+stage_two_arm_controller:
+   type: velocity_controllers/JointVelocityController
+   joint: stagetwoArmServo
+   pid: {p: 1, i: 1, d: 1}
+
+claw_controller:
+   type: velocity_controllers/JointVelocityController
+   joint: clawServo
+   pid: {p: 1, i: 1, d: 1}
+
 
 diffbot_controller:
    type: "diff_drive_controller/DiffDriveController"

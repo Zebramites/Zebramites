@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(minimotor)
+project(minimotor_old)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -11,19 +11,14 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   cmake_modules
   control_msgs
-  control_toolbox
   controller_manager
   hardware_interface
-  joint_limits_interface
   roscpp
   rospy
-  rosparam_shortcuts
   sensor_msgs
   std_msgs
   trajectory_msgs
-  transmission_interface
-  urdf
-  ros_control_boilerplate
+  minimotor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -135,7 +130,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/minimotor.cpp
+#   src/${PROJECT_NAME}/minimotor_old.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -210,7 +205,7 @@ include_directories(
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_minimotor.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_minimotor_old.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
@@ -224,33 +219,16 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-# MiniBot Hardware Interface
-add_library(minibot_hw_interface
-  src/minibot_hw_interface.cpp
-)
-target_link_libraries(minibot_hw_interface
+add_executable(minibot_hw_sync src/minibot_hardware_sync.cpp)
+target_link_libraries(minibot_hw_sync
   ${catkin_LIBRARIES}
 )
 
-# Main control executable
-add_executable(minibot_hw_main src/minibot_hw_main.cpp)
-target_link_libraries(minibot_hw_main
-  minibot_hw_interface
-  ${catkin_LIBRARIES}
-)
-
-## Install ------------------------------------------------------------
-
-# Install libraries
-install(TARGETS
-    minibot_hw_interface
-  LIBRARY DESTINATION
-    ${CATKIN_PACKAGE_LIB_DESTINATION}
-)
 
 # Install executables
 install(TARGETS
-    minibot_hw_main
+    
+    minibot_hw_sync
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

@@ -12,42 +12,25 @@
   <group ns="minibot">
 
     <!-- Load hardware interface -->
-    <!-- 
     <node name="minibot_hardware_interface" pkg="minimotor" type="minibot_hw_main"
           output="screen" launch-prefix="$(arg launch_prefix)"/>
--->
+
     <!-- Load controller settings -->
     <rosparam file="$(find minimotor)/config/minibot_controllers.yaml" command="load"/>
 
-    <!-- Load controller manager 
+    <!-- Load controller manager -->
     <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
-	  output="screen" args="spawn front_left_drive_controller front_right_drive_controller back_left_drive_controller back_right_drive_controller diffbot_controller base_rotate_controller base_arm_controller stage_two_arm_controller claw_controller" />
--->
+	  output="screen" args="spawn joint_state_controller intake_controller diffbot_controller" />
+
+    <!-- Convert joint states to /tf tranforms -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
     <node name="joy_node" pkg="joy" type="joy_node">
       <param name="dev" value="/dev/input/js0"/>
-      <!-- TODO, make this better than hardcoded -->
-      <param name="dev_ff" value="/dev/input/event27"/>
     </node>
 
-    
-    <node name="operator_joy_node" pkg="joy" type="joy_node">
-      <param name="dev" value="/dev/input/js1"/>
-      <remap from="joy" to="operator_joy"/>
-    </node>
-    
-    <!-- 
-    <node name="button_box_joy_pub" pkg="joy" type="joy_node">
-      <param name="dev" value="/dev/input/js1"/>
-      <remap from="joy" to="button_box_joy"/>
-    </node>
-    -->
-    
-    <node name="claw_node" pkg="minimotor" type="claw_node.py" output="screen"/>
-    <node name="arm_node" pkg="minimotor" type="arm_node.py" output="screen"/>
+    <node name="teleop_node" pkg="minimotor" type="teleop_node.py"/>
 
-    <node name="teleop_node" pkg="minimotor" type="teleop_node.py" output="screen"/>
-    <node name="auto_node" pkg="minimotor" type="auto.py" output="screen"/>
-    <node name="hw_sync" pkg="minimotor" type="minibot_hw_sync" output="screen"/>
   </group>
 
 </launch>

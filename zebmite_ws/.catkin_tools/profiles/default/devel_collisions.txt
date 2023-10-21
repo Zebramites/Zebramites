@@ -1,1 +1,2 @@
-/home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/./cmake.lock 14
+/home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/./cmake.lock 8
+/home/ubuntu/minifrc/Zebramites2023/zebmite_ws/devel/./cmake.lock 38

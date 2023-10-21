@@ -21,11 +21,7 @@ blacklist:
 - zed_ros
 build_space: build
 catkin_make_args: []
-cmake_args:
-- -DCATKIN_ENABLE_TESTING=OFF
-- -DBUILD_WITH_OPENMP=ON
-- -DCMAKE_CXX_STANDARD=17
-- -DSETUPTOOLS_DEB_LAYOUT=OFF
+cmake_args: []
 devel_layout: linked
 devel_space: devel
 extend_path: null

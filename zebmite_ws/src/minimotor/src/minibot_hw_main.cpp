@@ -33,74 +33,43 @@
  *********************************************************************/
 
 /* Author: Dave Coleman
-   Desc:   Example ros_control hardware interface blank template for the MiniBot
-           For a more detailed simulation example, see sim_hw_interface.h
+   Desc:   Example ros_control main() entry point for controlling robots in ROS
 */
 
-#ifndef MINIBOT_CONTROL__MINIBOT_HW_INTERFACE_H
-#define MINIBOT_CONTROL__MINIBOT_HW_INTERFACE_H
-
-#include <ros_control_boilerplate/generic_hw_interface.h>
-#include <ros/ros.h>
-#include <std_msgs/Float64.h>
+#include <ros_control_boilerplate/generic_hw_control_loop.h>
+#include <minibot_control/minibot_hw_interface.h>
 #include <boost/asio/serial_port.hpp>
+#include <boost/asio/io_service.hpp>
 using namespace::boost::asio;
 
-namespace minibot_control
+int main(int argc, char** argv)
 {
-
-enum JointType { motor };
-
-class MiniBotJoint {
-public:
-  JointType type;
-  MiniBotJoint(JointType t);
-  MiniBotJoint();
-
-  virtual void sendCommand(double cmd) {
-
-  }
-};
-
-class MiniBotMotorJoint : public MiniBotJoint {
-public:
-  bool inverted;
-  uint8_t port;
-  double velocity_mult;
-  double velocity_y_intercept;
+  ros::init(argc, argv, "minibot_hw_interface");
   ros::NodeHandle nh;
-  ros::Publisher pub;
-  double lastCmdSent;
-  serial_port *p;
-  MiniBotMotorJoint(serial_port *p, uint8_t port, double velocity_mult, double velocity_y_intercept, ros::NodeHandle &nh, bool inverted = false);
 
-  void sendCommand(double cmd);
-};
+  io_service ios;
+  serial_port *port = new serial_port(ios, "/dev/ttyS1");
 
-/// \brief Hardware interface for a robot
-class MiniBotHWInterface : public ros_control_boilerplate::GenericHWInterface
-{
-public:
-  /**
-   * \brief Constructor
-   * \param nh - Node handle for topics.
-   */
-  MiniBotHWInterface(ros::NodeHandle& nh, serial_port *port, urdf::Model* urdf_model = NULL);
+  try {
+    port->set_option(boost::asio::serial_port_base::baud_rate(115200));
+  } catch (boost::system::system_error::exception e) {
+    ROS_ERROR_STREAM("error setting serial port baud rate");
+  }
 
-  /** \brief Read the state from the robot hardware. */
-  virtual void read(ros::Duration& elapsed_time);
+  // NOTE: We run the ROS loop in a separate thread as external calls such
+  // as service callbacks to load controllers can block the (main) control loop
+  ros::AsyncSpinner spinner(3);
+  spinner.start();
 
-  /** \brief Write the command to the robot hardware. */
-  virtual void write(ros::Duration& elapsed_time);
+  // Create the hardware interface specific to your robot
+  std::shared_ptr<minibot_control::MiniBotHWInterface> minibot_hw_interface(new minibot_control::MiniBotHWInterface(nh, port));
+  minibot_hw_interface->init();
 
-  /** \brief Enforce limits for all values before writing */
-  virtual void enforceLimits(ros::Duration& period);
+  // Start the control loop
+  ros_control_boilerplate::GenericHWControlLoop control_loop(nh, minibot_hw_interface);
+  control_loop.run();  // Blocks until shutdown signal recieved
 
-protected:
-  std::map<std::string, std::shared_ptr<MiniBotJoint>> joints_;
-  serial_port *p;
-};  // class
+  port->close();
 
-}  // namespace minibot_control
-
-#endif
+  return 0;
+}
