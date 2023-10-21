@@ -1,4 +1,4 @@
-FROM ros:noetic-ros-base
+FROM ros:noetic-desktop-full
 WORKDIR /home/ubuntu
 RUN apt update && apt install -q -y --no-install-recommends \
     apt-utils \
@@ -22,6 +22,8 @@ RUN apt update && apt install -q -y --no-install-recommends \
     ros-$(rosversion -d)-cv-bridge \
     ros-$(rosversion -d)-ros-control \
     ros-$(rosversion -d)-angles \
+    ros-$(rosversion -d)-control-toolbox \
+    ros-$(rosversion -d)-rosparam-shortcuts \
     python3-tk &&\
     rm -rf /var/lib/apt/lists/*
 
