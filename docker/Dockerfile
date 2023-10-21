@@ -24,6 +24,7 @@ RUN apt update && apt install -q -y --no-install-recommends \
     ros-$(rosversion -d)-angles \
     ros-$(rosversion -d)-control-toolbox \
     ros-$(rosversion -d)-rosparam-shortcuts \
+    ros-$(rosversion -d)-joy \
     libgflags-dev \
     libgflags2.2 \
     python3-tk &&\
