@@ -20,6 +20,8 @@ RUN apt update && apt install -q -y --no-install-recommends \
     pyqt5-dev-tools \
     software-properties-common \
     ros-$(rosversion -d)-cv-bridge \
+    ros-$(rosversion -d)-ros-control \
+    ros-$(rosversion -d)-angles \
     python3-tk &&\
     rm -rf /var/lib/apt/lists/*
 
