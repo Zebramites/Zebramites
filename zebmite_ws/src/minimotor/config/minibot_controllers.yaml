@@ -10,8 +10,9 @@ hardware_interface:
       - intake
       - leftMotor
       - rightMotor
+      - servo
    sim_control_mode: 0 # 0: position, 1: velocity
-   port: /dev/ttyS1
+   port: /dev/pts/10
 
 # Publish all joint states ----------------------------------
 # Creates the /joint_states topic necessary in ROS
@@ -40,12 +41,22 @@ rightMotor:
    velocity_mult: 0.013625 # maps velocity (rad/sec) to percent output (-1.0 to 1.0). this is 1/(320 rpm converted to rad/sec)
    velocity_feed_forward: 0.595
 
+servo:
+   type: servo
+   port: 1
+   inverted: true
+
 # Individual Position Controllers ---------------------------------------
 # Allows to send individual ROS msg of Float64 to each joint separately
 intake_controller:
    type: velocity_controllers/JointVelocityController
    joint: intake
    pid: {p: 1, i: 1, d: 1}
+
+servo_controller:
+   type: position_controllers/JointPositionController
+   joint: servo
+   pid: {p: 1, i: 0, d: 0}
 
 # Group Position Controllers ---------------------------------------
 # Allows to send single ROS msg of Float64MultiArray to all joints

@@ -57,7 +57,11 @@ public:
   MiniBotJoint(JointType t);
   MiniBotJoint();
 
-  virtual const char* sendCommand(double cmd) {
+  virtual std::string setPosition(double cmd) {
+    return "";
+  }
+
+  virtual std::string setVelocity(double cmd) {
     return "";
   }
 };
@@ -69,7 +73,14 @@ public:
   double velocity_mult;
   double velocity_feed_forward;
   MiniBotMotorJoint(uint8_t port, double velocity_mult, double velocity_feed_forward, bool inverted = false);
-  const char* sendCommand(double cmd);
+  std::string setVelocity(double cmd);
+};
+
+class MiniBotServoJoint : public MiniBotJoint {
+public:
+  uint8_t port;
+  MiniBotServoJoint(uint8_t port);
+  std::string setPosition(double cmd);
 };
 
 /// \brief Hardware interface for a robot
@@ -80,7 +91,7 @@ public:
    * \brief Constructor
    * \param nh - Node handle for topics.
    */
-  MiniBotHWInterface(ros::NodeHandle& nh, serial_port *port, urdf::Model* urdf_model = NULL);
+  MiniBotHWInterface(ros::NodeHandle& nh, urdf::Model* urdf_model = NULL);
 
   /** \brief Read the state from the robot hardware. */
   virtual void read(ros::Duration& elapsed_time);

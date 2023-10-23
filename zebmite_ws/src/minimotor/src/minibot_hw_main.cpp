@@ -38,23 +38,11 @@
 
 #include <ros_control_boilerplate/generic_hw_control_loop.h>
 #include <minibot_control/minibot_hw_interface.h>
-#include <boost/asio/serial_port.hpp>
-#include <boost/asio/io_service.hpp>
-using namespace::boost::asio;
 
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "minibot_hw_interface");
   ros::NodeHandle nh;
-
-  io_service ios;
-  serial_port *port = new serial_port(ios, "/dev/ttyS1");
-
-  try {
-    port->set_option(boost::asio::serial_port_base::baud_rate(115200));
-  } catch (boost::system::system_error::exception e) {
-    ROS_ERROR_STREAM("error setting serial port baud rate");
-  }
 
   // NOTE: We run the ROS loop in a separate thread as external calls such
   // as service callbacks to load controllers can block the (main) control loop
@@ -62,14 +50,12 @@ int main(int argc, char** argv)
   spinner.start();
 
   // Create the hardware interface specific to your robot
-  std::shared_ptr<minibot_control::MiniBotHWInterface> minibot_hw_interface(new minibot_control::MiniBotHWInterface(nh, port));
+  std::shared_ptr<minibot_control::MiniBotHWInterface> minibot_hw_interface(new minibot_control::MiniBotHWInterface(nh));
   minibot_hw_interface->init();
 
   // Start the control loop
   ros_control_boilerplate::GenericHWControlLoop control_loop(nh, minibot_hw_interface);
   control_loop.run();  // Blocks until shutdown signal recieved
-
-  port->close();
 
   return 0;
 }
