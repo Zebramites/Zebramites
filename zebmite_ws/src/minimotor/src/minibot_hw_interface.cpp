@@ -56,30 +56,21 @@ MiniBotJoint::MiniBotJoint() {
 
 }
 
-MiniBotMotorJoint::MiniBotMotorJoint(serial_port *p, uint8_t port, double velocity_mult, double velocity_y_intercept, ros::NodeHandle &nh, bool inverted) : MiniBotJoint(motor) {
+MiniBotMotorJoint::MiniBotMotorJoint(uint8_t port, double velocity_mult, double velocity_feed_forward, bool inverted) : MiniBotJoint(motor) {
   this->type = motor;
   this->inverted = inverted;
   this->port = port;
   this->velocity_mult = velocity_mult;
-  this->velocity_y_intercept = velocity_y_intercept;
-  this->nh = nh;
-  this->pub = nh.advertise<std_msgs::Float64>("/motor"+std::to_string(port)+"/command", 5);
-  this->p = p;
+  this->velocity_feed_forward = velocity_feed_forward;
 }
 
-void MiniBotMotorJoint::sendCommand(double cmd) {
-  if (this->lastCmdSent != cmd) {
-    double output = (inverted ? -1.0d : 1.0d) * ((cmd >= 0 ? 1 : -1) * velocity_y_intercept + velocity_mult * cmd);
-    if (cmd == 0) {
-      output = 0.0;
-    }
-    this->lastCmdSent = cmd;
-    std::string toWrite = "z" + std::to_string(port) + ";" + std::to_string(output) + ";";
-    auto cs = toWrite.c_str();
-    ROS_INFO_STREAM(toWrite);
-    //boost::asio::write(*p, const_buffer(cs, strlen(cs)));
-    p->write_some(const_buffer(cs, strlen(cs)));
+const char* MiniBotMotorJoint::sendCommand(double cmd) {
+  double output = (inverted ? -1.0d : 1.0d) * ((cmd >= 0 ? 1 : -1) * velocity_feed_forward + velocity_mult * cmd);
+  if (cmd == 0) {
+    output = 0.0;
   }
+  std::string toWrite = "z" + std::to_string(port) + ";" + std::to_string(output) + ";";
+  return toWrite.c_str();
   // ROS_INFO_STREAM("Setting port " << std::to_string(port) << " to " << output);
 }
 
@@ -107,8 +98,8 @@ MiniBotJoint* parseJoint(ros::NodeHandle nh, const std::string &n, serial_port *
     error += !rosparam_shortcuts::get(n, rpnh, "inverted", inverted);
     error += !rosparam_shortcuts::get(n, rpnh, "port", port);
     error += !rosparam_shortcuts::get(n, rpnh, "velocity_mult", velocity_mult);
-    error += !rosparam_shortcuts::get(n, rpnh, "velocity_y_intercept", vyi);
-    MiniBotMotorJoint* j = new MiniBotMotorJoint(p, port, velocity_mult, vyi, nh, inverted);
+    error += !rosparam_shortcuts::get(n, rpnh, "velocity_feed_forward", vyi);
+    MiniBotMotorJoint* j = new MiniBotMotorJoint(port, velocity_mult, vyi, inverted);
     ROS_INFO_STREAM("Motor joint, name = " << n << ", port = " << port << ", inverted = " << inverted << ", vmult = " << velocity_mult);
     rosparam_shortcuts::shutdownIfError(n, error);
     return j;
@@ -145,29 +136,19 @@ void MiniBotHWInterface::write(ros::Duration& elapsed_time)
   // Safety
   enforceLimits(elapsed_time);
 
-  // ----------------------------------------------------
-  // ----------------------------------------------------
-  // ----------------------------------------------------
-  //
-  // FILL IN YOUR WRITE COMMAND TO USB/ETHERNET/ETHERCAT/SERIAL ETC HERE
-  //
-  // FOR A EASY SIMULATION EXAMPLE, OR FOR CODE TO CALCULATE
-  // VELOCITY FROM POSITION WITH SMOOTHING, SEE
-  // sim_hw_interface.cpp IN THIS PACKAGE
-  //
-  // DUMMY PASS-THROUGH CODE
+  // Write to serial for each joint
+  // TODO combine into one write
   boost::asio::write(*p, const_buffer("\n", 1));
   for (std::size_t joint_id = 0; joint_id < num_joints_; ++joint_id) {
-    auto thisJoint = joints_[joint_names_[joint_id]];
-    thisJoint->sendCommand(joint_velocity_command_[joint_id]);
-    joint_velocity_[joint_id] = joint_velocity_command_[joint_id];
+    if (joint_velocity_[joint_id] != joint_velocity_command_[joint_id]) {
+      auto thisJoint = joints_[joint_names_[joint_id]];
+      const char *this_command = thisJoint->sendCommand(joint_velocity_command_[joint_id]);
+      boost::asio::write(*p, const_buffer(this_command, strlen(this_command))); // eventually combine into just one write for all joints
+      joint_velocity_[joint_id] = joint_velocity_command_[joint_id];
+    }
     joint_position_[joint_id] += joint_velocity_command_[joint_id] * elapsed_time.toSec();
   }
-  // END DUMMY CODE
-  //
-  // ----------------------------------------------------
-  // ----------------------------------------------------
-  // ----------------------------------------------------
+
 }
 
 void MiniBotHWInterface::enforceLimits(ros::Duration& period)
