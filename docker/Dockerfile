@@ -1,4 +1,4 @@
-FROM ros:noetic-desktop-full
+FROM osrf/ros:noetic-desktop-full
 WORKDIR /home/ubuntu
 RUN apt update && apt install -q -y --no-install-recommends \
     apt-utils \
