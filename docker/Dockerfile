@@ -21,6 +21,7 @@ RUN apt update && apt install -q -y --no-install-recommends \
     software-properties-common \
     ros-$(rosversion -d)-cv-bridge \
     ros-$(rosversion -d)-ros-control \
+    ros-$(rosversion -d)-ros-controllers \
     ros-$(rosversion -d)-angles \
     ros-$(rosversion -d)-control-toolbox \
     ros-$(rosversion -d)-rosparam-shortcuts \
