@@ -1,0 +1,115 @@
+<robot name="onshape">
+    <link name="base_link" />
+    <joint name="base_link_to_base" type="fixed">
+        <parent link="base_link" />
+        <child link="sg90_-_micro_servo_9g_-_tower_pro.3" />
+        <origin rpy="0.0 0 0" xyz="0 0 0" />
+    </joint>
+    <link name="sg90_-_micro_servo_9g_-_tower_pro.3">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://minifrcrobot_description/urdf/sg90_-_micro_servo_9g_-_tower_pro.3_visual.stl" />
+            </geometry>
+            <material name="sg90_-_micro_servo_9g_-_tower_pro.3_material">
+                <color rgba="0.38149318392470582539 0.54806930525159291978 0.79267808387500182654 1.0" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://minifrcrobot_description/urdf/sg90_-_micro_servo_9g_-_tower_pro.3_collision.stl" />
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0.017979814328930726619 -5.011001262169523513e-10 0.03785052809071488833" rpy="0 0 0" />
+            <mass value="0.081564384217203356187" />
+            <inertia ixx="3.4481140557685354406e-05" ixy="1.0863851865719477584e-13" ixz="-7.9983073114152817098e-06" iyy="6.4701559103795937625e-05" iyz="5.8589367925078146758e-12" izz="3.9083608229098493582e-05" />
+        </inertial>
+    </link>
+    <link name="part_1">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://minifrcrobot_description/urdf/part_1_visual.stl" />
+            </geometry>
+            <material name="part_1_material">
+                <color rgba="0.64721062803979301226 0.64718762735640189554 0.64716462667301077882 1.0" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://minifrcrobot_description/urdf/part_1_collision.stl" />
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0.0012918649011210161202 0.11564585536218635609 -0.0094099123019816544033" rpy="0 0 0" />
+            <mass value="0.01868093335900054483" />
+            <inertia ixx="0.00010471527698600917788" ixy="2.714490903942272984e-08" ixz="2.7774392820776907291e-09" iyy="1.6267819415915890517e-06" iyz="-1.7738494322544340559e-07" izz="0.00010406420131893337824" />
+        </inertial>
+    </link>
+    <link name="sg90-micro-servo-9g-tower-pro-1.snapshot.3">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://minifrcrobot_description/urdf/sg90-micro-servo-9g-tower-pro-1.snapshot.3_visual.stl" />
+            </geometry>
+            <material name="sg90-micro-servo-9g-tower-pro-1.snapshot.3_material">
+                <color rgba="0.52849064743992313353 0.69355367924434718763 0.9395121958785533911 1.0" />
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 -0 0" />
+            <geometry>
+                <mesh filename="package://minifrcrobot_description/urdf/sg90-micro-servo-9g-tower-pro-1.snapshot.3_collision.stl" />
+            </geometry>
+        </collision>
+        <inertial>
+            <origin xyz="0.10139477787182279989 0.0020939197305716839535 0.00040163004311678557508" rpy="0 0 0" />
+            <mass value="0.057399072474397239141" />
+            <inertia ixx="2.3414026319376877213e-05" ixy="5.1524828125774233342e-06" ixz="-1.9766014394517590977e-05" iyy="0.00037382240747005162328" iyz="-4.3393236224515993592e-07" izz="0.00035926059444614223898" />
+        </inertial>
+    </link>
+    <joint name="second_stage_arm" type="revolute">
+        <origin xyz="-8.6736173798840354721e-19 0.22804154362529510669 8.6736173798840354721e-19" rpy="-3.141592653589793116 8.0835220919448662387e-22 2.6097509957447053708" />
+        <parent link="part_1" />
+        <child link="sg90-micro-servo-9g-tower-pro-1.snapshot.3" />
+        <axis xyz="0 0 1" />
+        <limit effort="1000000" velocity="20" upper="4.5" lower="-2.0" />
+        <joint_properties friction="0.0" />
+    </joint>
+    <joint name="base_arm" type="revolute">
+        <origin xyz="0.0056499999999999848954 3.0357660829594124152e-16 0.03350000000000099426" rpy="1.570796326794896336 -0.15085086535037292577 1.570796326794896558" />
+        <parent link="sg90_-_micro_servo_9g_-_tower_pro.3" />
+        <child link="part_1" />
+        <axis xyz="0 0 1" />
+        <limit effort="10000" velocity="20" upper="1.5" lower="-1.7" />
+        <joint_properties friction="0.0" />
+    </joint>
+    <transmission name="trans_second_stage_arm">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="second_stage_arm">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="second_stage_arm_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <transmission name="trans_base_arm">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="base_arm">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="base_arm_motor">
+            <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
+    <gazebo>
+        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+            <robotNamespace>/</robotNamespace>
+        </plugin>
+    </gazebo>
+</robot>
