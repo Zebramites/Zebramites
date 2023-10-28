@@ -69,7 +69,7 @@ namespace minibot_control
   }
 
   std::string MiniBotMotorJoint::setVelocity(double cmd) {
-    double output = (inverted ? -1.0d : 1.0d) * ((cmd >= 0 ? 1 : -1) * velocity_feed_forward + velocity_mult * cmd);
+    double output = (inverted ? -1.0 : 1.0) * ((cmd >= 0 ? 1 : -1) * velocity_feed_forward + velocity_mult * cmd);
     if (cmd == 0) {
       output = 0.0;
     }
@@ -98,7 +98,7 @@ namespace minibot_control
     }
   }
 
-  MiniBotJoint* parseJoint(ros::NodeHandle nh, const std::string &n, serial_port *p) {
+  MiniBotJoint* parseJoint(ros::NodeHandle nh, const std::string &n) {
     ros::NodeHandle rpnh(
         nh, n);
     std::size_t error = 0;
@@ -136,18 +136,22 @@ namespace minibot_control
   {
     io_service ios;
 
-    // load serial port from rosparam (nh.hardware_interface)
+    ros::NodeHandle hwnh(nh, "hardware_interface");
 
-    // p = new serial_port(ios, "/dev/ttyS1");
+    std::size_t error = 0;
+    std::string serial_port;
+    error += !rosparam_shortcuts::get("hardware_interface", hwnh, "port", serial_port);
 
-    // try {
-    //   p->set_option(boost::asio::serial_port_base::baud_rate(115200));
-    // } catch (boost::system::system_error::exception e) {
-    //   ROS_ERROR_STREAM("error setting serial port baud rate");
-    // }
+    p = new boost::asio::serial_port(ios, serial_port);
+
+    try {
+      p->set_option(boost::asio::serial_port_base::baud_rate(921600));
+    } catch (boost::system::system_error::exception e) {
+      ROS_ERROR_STREAM("error setting serial port baud rate");
+    }
     ROS_INFO_NAMED("minibot_hw_interface", "MiniBotHWInterface Ready.");
     for (std::string n : joint_names_) {
-      std::shared_ptr<MiniBotJoint> jp = std::shared_ptr<MiniBotJoint>(parseJoint(nh, n, p));
+      std::shared_ptr<MiniBotJoint> jp = std::shared_ptr<MiniBotJoint>(parseJoint(nh, n));
       joints_[n] = jp;
     }
   }
@@ -191,6 +195,7 @@ namespace minibot_control
     }
 
     ROS_INFO_STREAM("Sending command " << command); // TODO replace with actual write
+    p->write_some(boost::asio::buffer(command));
 
   }
 

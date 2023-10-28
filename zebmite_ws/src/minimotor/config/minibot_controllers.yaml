@@ -12,7 +12,7 @@ hardware_interface:
       - rightMotor
       - servo
    sim_control_mode: 0 # 0: position, 1: velocity
-   port: /dev/pts/10
+   port: /dev/ttyUSB0
 
 # Publish all joint states ----------------------------------
 # Creates the /joint_states topic necessary in ROS
