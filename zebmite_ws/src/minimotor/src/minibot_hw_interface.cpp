@@ -85,7 +85,7 @@ namespace minibot_control
   }
 
   std::string MiniBotServoJoint::setPosition(double cmd) {
-    std::string toWrite = "s" + std::to_string(port) + ";" + std::to_string(angles::from_degrees(cmd) + offset) + ";";
+    std::string toWrite = "s" + std::to_string(port) + ";" + std::to_string(angles::to_degrees(angles::from_degrees(cmd) + offset)) + ";";
     return toWrite;
   }
 
