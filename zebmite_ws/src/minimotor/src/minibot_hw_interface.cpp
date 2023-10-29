@@ -44,6 +44,7 @@
 #include <boost/asio/write.hpp>
 #include <minibot_control/interpolating_map.h>
 #include <boost/asio/io_service.hpp>
+#include <angles/angles.h>
 using namespace::boost::asio;
 using boost::asio::serial_port;
 
@@ -79,12 +80,12 @@ namespace minibot_control
 
   // Servos
 
-  MiniBotServoJoint::MiniBotServoJoint(uint8_t port) : MiniBotJoint(motor), port(port) {
+  MiniBotServoJoint::MiniBotServoJoint(uint8_t port, double offset) : MiniBotJoint(motor), port(port), offset(offset) {
     
   }
 
   std::string MiniBotServoJoint::setPosition(double cmd) {
-    std::string toWrite = "s" + std::to_string(port) + ";" + std::to_string(cmd) + ";";
+    std::string toWrite = "s" + std::to_string(port) + ";" + std::to_string(angles::from_degrees(cmd) + offset) + ";";
     return toWrite;
   }
 
@@ -122,9 +123,11 @@ namespace minibot_control
     }
     else if (t == servo) {
       int port;
+      double offset;
       error += !rosparam_shortcuts::get(n, rpnh, "port", port);
-      MiniBotServoJoint* j = new MiniBotServoJoint(port);
-      ROS_INFO_STREAM("Servo joint, name = " << n << ", port = " << port);
+      error += !rosparam_shortcuts::get(n, rpnh, "offset", offset);
+      MiniBotServoJoint* j = new MiniBotServoJoint(port, offset);
+      ROS_INFO_STREAM("Servo joint, name = " << n << ", port = " << port << ", offset = " << offset);
       rosparam_shortcuts::shutdownIfError(n, error);
       return j;
     }
@@ -142,10 +145,10 @@ namespace minibot_control
     std::string serial_port;
     error += !rosparam_shortcuts::get("hardware_interface", hwnh, "port", serial_port);
 
-    // CJH p = new boost::asio::serial_port(ios, serial_port);
+    p = new boost::asio::serial_port(ios, serial_port);
 
     try {
-      // CJH p->set_option(boost::asio::serial_port_base::baud_rate(921600));
+      p->set_option(boost::asio::serial_port_base::baud_rate(921600));
     } catch (boost::system::system_error::exception e) {
       ROS_ERROR_STREAM("error setting serial port baud rate");
     }
@@ -195,7 +198,7 @@ namespace minibot_control
     }
 
     ROS_INFO_STREAM("Sending command " << command); // TODO replace with actual write
-    // CJH p->write_some(boost::asio::buffer(command));
+    p->write_some(boost::asio::buffer(command));
 
   }
 

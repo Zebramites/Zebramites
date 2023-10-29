@@ -79,7 +79,8 @@ public:
 class MiniBotServoJoint : public MiniBotJoint {
 public:
   uint8_t port;
-  MiniBotServoJoint(uint8_t port);
+  double offset;
+  MiniBotServoJoint(uint8_t port, double offset);
   std::string setPosition(double cmd);
 };
 
@@ -104,7 +105,7 @@ public:
 
 protected:
   std::map<std::string, std::shared_ptr<MiniBotJoint>> joints_;
-  // CJH serial_port *p;
+  serial_port *p;
 };  // class
 
 }  // namespace minibot_control
