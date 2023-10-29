@@ -142,10 +142,10 @@ namespace minibot_control
     std::string serial_port;
     error += !rosparam_shortcuts::get("hardware_interface", hwnh, "port", serial_port);
 
-    p = new boost::asio::serial_port(ios, serial_port);
+    // CJH p = new boost::asio::serial_port(ios, serial_port);
 
     try {
-      p->set_option(boost::asio::serial_port_base::baud_rate(921600));
+      // CJH p->set_option(boost::asio::serial_port_base::baud_rate(921600));
     } catch (boost::system::system_error::exception e) {
       ROS_ERROR_STREAM("error setting serial port baud rate");
     }
@@ -195,7 +195,7 @@ namespace minibot_control
     }
 
     ROS_INFO_STREAM("Sending command " << command); // TODO replace with actual write
-    p->write_some(boost::asio::buffer(command));
+    // CJH p->write_some(boost::asio::buffer(command));
 
   }
 

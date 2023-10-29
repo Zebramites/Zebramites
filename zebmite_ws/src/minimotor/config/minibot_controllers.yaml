@@ -7,10 +7,8 @@ generic_hw_control_loop:
 # Settings for ros_control hardware interface
 hardware_interface:
    joints:
-      - intake
-      - leftMotor
-      - rightMotor
-      - servo
+      - base_arm
+      - second_stage_arm
    sim_control_mode: 0 # 0: position, 1: velocity
    port: /dev/ttyUSB0
 
@@ -20,70 +18,20 @@ joint_state_controller:
    type:         joint_state_controller/JointStateController
    publish_rate: 50
 
-intake:
-   type: motor
-   port: 1
-   inverted: true
-   velocity_mult: 0.013625 # maps velocity to percent output (-1.0 to 1.0)
-   velocity_feed_forward: 0.595
-
-leftMotor:
-   type: motor
-   port: 3
-   inverted: false
-   velocity_mult: 0.013625 # maps velocity to percent output (-1.0 to 1.0)
-   velocity_feed_forward: 0.595
-
-rightMotor:
-   type: motor
-   port: 4
-   inverted: true
-   velocity_mult: 0.013625 # maps velocity (rad/sec) to percent output (-1.0 to 1.0). this is 1/(320 rpm converted to rad/sec)
-   velocity_feed_forward: 0.595
-
-servo:
+base_arm:
    type: servo
    port: 1
-   inverted: true
+   inverted: false
 
+second_stage_arm:
+   type: servo
+   port: 2
+   inverted: false
 # Individual Position Controllers ---------------------------------------
 # Allows to send individual ROS msg of Float64 to each joint separately
-intake_controller:
-   type: velocity_controllers/JointVelocityController
-   joint: intake
-   pid: {p: 1, i: 1, d: 1}
 
-servo_controller:
-   type: position_controllers/JointPositionController
-   joint: servo
-   pid: {p: 1, i: 0, d: 0}
-
-# Group Position Controllers ---------------------------------------
-# Allows to send single ROS msg of Float64MultiArray to all joints
-joint_position_controller:
-   type: position_controllers/JointGroupPositionController
-   joints:
-     - intake
-     - leftMotor
-     - rightMotor
-
-diffbot_controller:
-   type: diff_drive_controller/DiffDriveController
-   left_wheel: leftMotor
-   right_wheel: rightMotor
-   wheel_separation: 0.043
-   wheel_radius: 0.0325
-   publish_rate: 25.0 # defaults to 50
-   pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
-   twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
-   cmd_vel_timeout: 20.0 # we test this separately, give plenty for the other tests
-   linear:
-      x:
-         has_velocity_limits: true
-         max_velocity: 1.23
-         min_velocity: -1.23
-   angular:
-      z:
-         has_velocity_limits: true
-         max_velocity: 55.0
-         min_velocity: -55.0
+minifrc_arm_joint_position_controller:
+  type: position_controllers/JointTrajectoryController
+  joints:
+    - base_arm
+    - second_stage_arm

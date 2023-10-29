@@ -104,7 +104,7 @@ public:
 
 protected:
   std::map<std::string, std::shared_ptr<MiniBotJoint>> joints_;
-  serial_port *p;
+  // CJH serial_port *p;
 };  // class
 
 }  // namespace minibot_control

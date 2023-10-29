@@ -1,5 +1,5 @@
 controller_list:
-  - name: super_smooth_moves
+  - name: minifrc_arm_joint_position_controller
     action_ns: follow_joint_trajectory
     type: FollowJointTrajectory
     default: True

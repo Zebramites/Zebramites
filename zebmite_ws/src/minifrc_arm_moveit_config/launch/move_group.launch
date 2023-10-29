@@ -14,7 +14,7 @@
   <!-- move_group settings -->
   <arg name="pipeline" default="ompl" />
   <arg name="allow_trajectory_execution" default="true"/>
-  <arg name="moveit_controller_manager" default="simple" />
+  <arg name="moveit_controller_manager" default="ros_control" />
   <arg name="fake_execution_type" default="interpolate"/>
   <arg name="max_safe_path_cost" default="1"/>
   <arg name="publish_monitored_planning_scene" default="true"/>
@@ -82,6 +82,8 @@
 
   <!-- Start the actual move_group node/action server -->
   <node name="move_group" launch-prefix="$(arg launch_prefix)" pkg="moveit_ros_move_group" type="move_group" respawn="false" output="screen" args="$(arg command_args)">
+    <remap from="/controller_manager/list_controllers" to="/minibot/controller_manager/list_controllers"/>
+    <remap from="/minifrc_arm_joint_position_controller/follow_joint_trajectory" to="/minibot/minifrc_arm_joint_position_controller/follow_joint_trajectory"/>
     <!-- Set the display variable, in case OpenGL code is used internally -->
     <env name="DISPLAY" value="$(optenv DISPLAY :0)" />
 

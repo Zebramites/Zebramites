@@ -1,5 +1,0 @@
-gazebo_ros_demos/rrbot_control
-/home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/.private/rrbot_control/cmake.lock /home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/./cmake.lock
-/home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/.private/rrbot_control/lib/pkgconfig/rrbot_control.pc /home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/lib/pkgconfig/rrbot_control.pc
-/home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/.private/rrbot_control/share/rrbot_control/cmake/rrbot_controlConfig.cmake /home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/share/rrbot_control/cmake/rrbot_controlConfig.cmake
-/home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/.private/rrbot_control/share/rrbot_control/cmake/rrbot_controlConfig-version.cmake /home/ubuntu/minifrc/2023Zebramites/zebmite_ws/devel/share/rrbot_control/cmake/rrbot_controlConfig-version.cmake
