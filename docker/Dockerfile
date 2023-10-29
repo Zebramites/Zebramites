@@ -55,7 +55,7 @@ RUN useradd -ms /bin/bash -G sudo -p `mkpasswd -m sha-512 ubuntu` ubuntu &&\
     adduser ubuntu dialout
 
 # Set up various paths in .bashrc here
-RUN echo "source /home/ubuntu/minifrc/Zebramites2023/zebmite_ws/command_aliases.sh" >> /root/.bashrc &&\
+RUN echo "source /home/ubuntu/minifrc/2023Zebramites/zebmite_ws/command_aliases.sh" >> /root/.bashrc &&\
     echo "export PATH=\$PATH:/usr/games/bin" >> /root/.bashrc &&\
     echo "# enable bash completion in interactive shells" >> /etc/bash.bashrc &&\
     echo "if ! shopt -oq posix; then" >> /etc/bash.bashrc &&\
