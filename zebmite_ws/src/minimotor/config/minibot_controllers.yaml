@@ -22,11 +22,13 @@ base_arm:
    type: servo
    port: 1
    inverted: false
+   offset: 0.165
 
 second_stage_arm:
    type: servo
    port: 2
    inverted: false
+   offset: 0.0
 # Individual Position Controllers ---------------------------------------
 # Allows to send individual ROS msg of Float64 to each joint separately
 
