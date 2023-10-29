@@ -20,6 +20,14 @@
         <joint name="base_arm" value="-0.2947"/>
         <joint name="second_stage_arm" value="-1.914"/>
     </group_state>
+    <group_state name="moveit_zero" group="armplangroup">
+        <joint name="base_arm" value="0.0"/>
+        <joint name="second_stage_arm" value="0.0"/>
+    </group_state>
+    <group_state name="servo_zero" group="armplangroup">
+        <joint name="base_arm" value="-0.165"/>
+        <joint name="second_stage_arm" value="0.0"/>
+    </group_state>
     <group_state name="seven" group="armplangroup">
         <joint name="base_arm" value="-0.9042"/>
         <joint name="second_stage_arm" value="-1.2606"/>
