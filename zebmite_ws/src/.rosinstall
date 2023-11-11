@@ -15,3 +15,6 @@
 - git:
     local-name: gazebo_ros_demos
     uri: https://github.com/ros-simulation/gazebo_ros_demos.git
+- git:
+    local-name: actionlib
+    uri: https://github.com/FRC900/actionlib.git

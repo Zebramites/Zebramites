@@ -80,12 +80,12 @@ namespace minibot_control
 
   // Servos
 
-  MiniBotServoJoint::MiniBotServoJoint(uint8_t port, double offset) : MiniBotJoint(motor), port(port), offset(offset) {
+  MiniBotServoJoint::MiniBotServoJoint(uint8_t port, double offset, bool inverted) : MiniBotJoint(motor), port(port), offset(offset), inverted(inverted) {
     
   }
 
   std::string MiniBotServoJoint::setPosition(double cmd) {
-    std::string toWrite = "s" + std::to_string(port) + ";" + std::to_string(angles::to_degrees(cmd + offset)) + ";";
+    std::string toWrite = "s" + std::to_string(port) + ";" + std::to_string(angles::to_degrees(((inverted ? -1.0 : 1.0) * cmd) + offset)) + ";";
     return toWrite;
   }
 
@@ -124,9 +124,11 @@ namespace minibot_control
     else if (t == servo) {
       int port;
       double offset;
+      bool inverted;
+      error += !rosparam_shortcuts::get(n, rpnh, "inverted", inverted);
       error += !rosparam_shortcuts::get(n, rpnh, "port", port);
       error += !rosparam_shortcuts::get(n, rpnh, "offset", offset);
-      MiniBotServoJoint* j = new MiniBotServoJoint(port, offset);
+      MiniBotServoJoint* j = new MiniBotServoJoint(port, offset, inverted);
       ROS_INFO_STREAM("Servo joint, name = " << n << ", port = " << port << ", offset = " << offset);
       rosparam_shortcuts::shutdownIfError(n, error);
       return j;

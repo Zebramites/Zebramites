@@ -80,6 +80,7 @@ class MiniBotServoJoint : public MiniBotJoint {
 public:
   uint8_t port;
   double offset;
+  bool inverted;
   MiniBotServoJoint(uint8_t port, double offset);
   std::string setPosition(double cmd);
 };
