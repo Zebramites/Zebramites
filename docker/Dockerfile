@@ -27,6 +27,7 @@ RUN apt update && apt install -q -y --no-install-recommends \
     ros-$(rosversion -d)-rosparam-shortcuts \
     ros-$(rosversion -d)-joy \
     ros-$(rosversion -d)-moveit \
+    ros-$(rosversion -d)-rqt-joint-trajectory-controller \
     libgflags-dev \
     libgflags2.2 \
     python3-tk &&\

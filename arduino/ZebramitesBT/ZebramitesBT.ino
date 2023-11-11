@@ -31,8 +31,8 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available()) {
-    char c = Serial.read();
+  char c = Serial.read();
+  if (c == 'm' || c == 's') {
     size_t index = Serial.readStringUntil(';').toInt();
     double command = Serial.readStringUntil(';').toDouble();
     switch (c) {

@@ -2,7 +2,7 @@
 
 alias crossbuild='~/minifrc/2023Zebramites/zebmite_ws/cross_build.sh'
 alias deploy='~/scripts/deploy.sh'
-alias hwlaunch='roslaunch minimotor_old minibot_hardware.launch'
+alias hwlaunch='roslaunch minimotor minibot_hardware.launch'
 alias killros='~/minifrc/2023Zebramites/zebmite_ws/kill_ros_.sh'
 alias natbuild='~/minifrc/2023Zebramites/zebmite_ws/native_build.sh'
 alias rosjet='source ~/minifrc/2023Zebramites/zebmite_ws/ROSJetsonMaster.sh'
