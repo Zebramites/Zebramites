@@ -76,7 +76,7 @@
         <parent link="part_1" />
         <child link="sg90-micro-servo-9g-tower-pro-1.snapshot.3" />
         <axis xyz="0 0 1" />
-        <limit effort="1000000" velocity="200000" upper="0.43633" lower="-1.13446" />
+        <limit effort="1000000" velocity="200000" upper="3.14" lower="-3.14" />
         <joint_properties friction="0.0" />
     </joint>
     <joint name="base_arm" type="revolute">
@@ -84,7 +84,7 @@
         <parent link="sg90_-_micro_servo_9g_-_tower_pro.3" />
         <child link="part_1" />
         <axis xyz="0 0 1" />
-        <limit effort="10000" velocity="200000" upper="1.274" lower="-0.296706" />
+        <limit effort="10000" velocity="200000" upper="5.14" lower="-2.14" />
         <joint_properties friction="0.0" />
     </joint>
     <transmission name="trans_second_stage_arm">

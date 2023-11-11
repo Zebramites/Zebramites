@@ -26,7 +26,7 @@
     </group_state>
     <group_state name="servo_zero" group="armplangroup">
         <joint name="base_arm" value="-0.296"/>
-        <joint name="second_stage_arm" value="-1.1344"/>
+        <joint name="second_stage_arm" value="1.0"/>
     </group_state>
     <group_state name="seven" group="armplangroup">
         <joint name="base_arm" value="-0.9042"/>

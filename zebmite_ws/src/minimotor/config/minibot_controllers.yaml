@@ -22,7 +22,7 @@ base_arm:
    type: servo
    port: 1
    inverted: false
-   offset: 0.296706 # 17 deg
+   offset: 1.606706 # 17 deg + 90ish deg
 
 second_stage_arm:
    type: servo

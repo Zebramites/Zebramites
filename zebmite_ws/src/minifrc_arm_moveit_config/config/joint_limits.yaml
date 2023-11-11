@@ -10,11 +10,11 @@ default_acceleration_scaling_factor: 1.0
 joint_limits:
   base_arm:
     has_velocity_limits: true
-    max_velocity: 20
-    has_acceleration_limits: false
-    max_acceleration: 0
+    max_velocity: 300
+    has_acceleration_limits: true
+    max_acceleration: 20
   second_stage_arm:
     has_velocity_limits: true
-    max_velocity: 20
-    has_acceleration_limits: false
-    max_acceleration: 0
+    max_velocity: 300
+    has_acceleration_limits: true
+    max_acceleration: 20
