@@ -24,6 +24,7 @@ find_package(catkin REQUIRED COMPONENTS
   transmission_interface
   urdf
   ros_control_boilerplate
+  controller_interface
 )
 
 ## System dependencies are found with CMake's conventions
@@ -116,11 +117,13 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES minimotor
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+  CATKIN_DEPENDS
+  controller_interface
+  INCLUDE_DIRS include
+  #LIBRARIES ${PROJECT_NAME}
+  DEPENDS
 )
+
 
 ###########
 ## Build ##
@@ -128,10 +131,6 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-# include
-# ${catkin_INCLUDE_DIRS}
-)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -243,6 +242,11 @@ target_link_libraries(minibot_hw_main
 add_library(${PROJECT_NAME} 
 	src/mecanum_drive_controller.cpp
 )
+add_dependencies(${PROJECT_NAME}
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 
 ## Install ------------------------------------------------------------
 
@@ -262,3 +266,6 @@ install(TARGETS
 
 # Install header files
 install(DIRECTORY include/minibot_control/ DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+
+install(FILES ${PROJECT_NAME}_plugins.xml
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

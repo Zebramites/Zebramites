@@ -1,8 +1,0 @@
-<library path="lib/libminimotor">
-
-    <class name="mecanum_drive_controller/MecanumDriveController" type="mecanum_drive_controller::MecanumDriveController" base_class_type="controller_interface::ControllerBase">
-        <description>
-        </description>
-    </class>
-
-</library>

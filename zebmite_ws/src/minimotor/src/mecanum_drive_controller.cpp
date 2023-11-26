@@ -82,10 +82,10 @@ void update(const ros::Time &time, const ros::Duration &period)
     double frontRightPower = (new_y - new_x - rx) / denominator;
     double backRightPower = (new_y + new_x - rx) / denominator;
 
-    frontLeftPower *= sign(frontLeftPower); //* remap(std::abs(frontLeftPower), 0, 1, 0.5, 1) 
-    backLeftPower *= sign(backLeftPower); //* remap(std::abs(backLeftPower), 0, 1, 0.5, 1)
-    frontRightPower *= sign(frontRightPower); //* remap(std::abs(frontRightPower), 0, 1, 0.5, 1)
-    backRightPower *= sign(backRightPower); //* remap(std::abs(backRightPower), 0, 1, 0.5, 1)
+    // frontLeftPower *= sign(frontLeftPower); //* remap(std::abs(frontLeftPower), 0, 1, 0.5, 1) 
+    // backLeftPower *= sign(backLeftPower); //* remap(std::abs(backLeftPower), 0, 1, 0.5, 1)
+    // frontRightPower *= sign(frontRightPower); //* remap(std::abs(frontRightPower), 0, 1, 0.5, 1)
+    // backRightPower *= sign(backRightPower); //* remap(std::abs(backRightPower), 0, 1, 0.5, 1)
 
     // set wheel velocities
     fl_wheel_joint_.setCommand(frontLeftPower);

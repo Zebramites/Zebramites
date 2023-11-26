@@ -65,10 +65,11 @@
   <depend>transmission_interface</depend>
   <depend>urdf</depend>
   <depend>ros_control_boilerplate</depend>
+  <depend>controller_interface</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
-    <controller_interface plugin="${prefix}/minibot_controller_plugins.xml"/>
+    <controller_interface plugin="${prefix}/minimotor_plugins.xml"/>
   </export>
 </package>

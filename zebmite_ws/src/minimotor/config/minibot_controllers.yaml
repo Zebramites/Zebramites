@@ -9,8 +9,12 @@ hardware_interface:
    joints:
       - base_arm
       - second_stage_arm
+      - fr_drive
+      - fl_drive
+      - br_drive
+      - bl_drive
    sim_control_mode: 0 # 0: position, 1: velocity
-   port: /dev/ttyUSB0
+   port: /dev/tty2
 
 # Publish all joint states ----------------------------------
 # Creates the /joint_states topic necessary in ROS
@@ -67,3 +71,7 @@ minifrc_arm_joint_position_controller:
   joints:
     - base_arm
     - second_stage_arm
+
+mecanum_drive_controller:
+  type: minimotor/MecanumDriveController
+  # add parameters sometime maybe
