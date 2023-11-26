@@ -18,6 +18,36 @@ joint_state_controller:
    type:         joint_state_controller/JointStateController
    publish_rate: 50
 
+fr_drive:
+   type: motor
+   port: 1
+   inverted: false
+   velocity_mult: 1.0
+   velocity_feed_forward: 0.0
+
+fl_drive:
+   type: motor
+   port: 1
+   inverted: false
+   velocity_mult: 1.0
+   velocity_feed_forward: 0.0
+
+br_drive:
+   type: motor
+   port: 1
+   inverted: false
+   velocity_mult: 1.0
+   velocity_feed_forward: 0.0
+   
+bl_drive:
+   type: motor
+   port: 1
+   inverted: false
+   velocity_mult: 1.0
+   velocity_feed_forward: 0.0
+
+
+
 base_arm:
    type: servo
    port: 1

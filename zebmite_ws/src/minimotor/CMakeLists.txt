@@ -239,6 +239,11 @@ target_link_libraries(minibot_hw_main
   ${catkin_LIBRARIES}
 )
 
+# Controllers
+add_library(${PROJECT_NAME} 
+	src/mecanum_drive_controller.cpp
+)
+
 ## Install ------------------------------------------------------------
 
 # Install libraries
