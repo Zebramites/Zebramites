@@ -43,7 +43,7 @@
 #include <ros_control_boilerplate/generic_hw_interface.h>
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
-#include <boost/asio/serial_port.hpp>
+#include <boost/asio/ip/tcp.hpp>
 using namespace::boost::asio;
 
 namespace minibot_control
@@ -106,7 +106,7 @@ public:
 
 protected:
   std::map<std::string, std::shared_ptr<MiniBotJoint>> joints_;
-  serial_port *p;
+  boost::asio::ip::tcp::socket *p;
 };  // class
 
 }  // namespace minibot_control
