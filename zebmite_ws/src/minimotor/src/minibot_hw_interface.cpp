@@ -199,7 +199,7 @@ namespace minibot_control
       }
     }
 
-    ROS_INFO_STREAM("Sending command " << command); // TODO replace with actual write
+    // ROS_INFO_STREAM("Sending command " << command); // TODO replace with actual write
     p->write_some(boost::asio::buffer(command));
 
   }

@@ -14,7 +14,7 @@ hardware_interface:
       - br_drive
       - bl_drive
    sim_control_mode: 0 # 0: position, 1: velocity
-   port: /dev/tty2
+   port: /dev/rfcomm0
 
 # Publish all joint states ----------------------------------
 # Creates the /joint_states topic necessary in ROS
@@ -24,7 +24,7 @@ joint_state_controller:
 
 fr_drive:
    type: motor
-   port: 1
+   port: 2
    inverted: false
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
@@ -32,21 +32,21 @@ fr_drive:
 fl_drive:
    type: motor
    port: 1
-   inverted: false
+   inverted: true
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 
 br_drive:
    type: motor
-   port: 1
+   port: 4
    inverted: false
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
    
 bl_drive:
    type: motor
-   port: 1
-   inverted: false
+   port: 3
+   inverted: true
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 

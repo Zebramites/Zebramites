@@ -7,7 +7,7 @@ from std_msgs.msg import Float64
 
 rospy.init_node('teleop_node', anonymous=True)
 
-pub = rospy.Publisher("/minibot/mecanum_controller/cmd_vel", Twist)
+pub = rospy.Publisher("/minibot/mecanum_drive_controller/cmd_vel", Twist)
 
 def callback(msg):
     # publish cmd velocity with joystick input
