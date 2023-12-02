@@ -56,21 +56,22 @@ base_arm:
    type: servo
    port: 1
    inverted: false
-   offset: 1.606706 # 17 deg + 90ish deg
+   offset: 0 #1.606706 # 17 deg + 90ish deg
+   scale: 1.667
 
 second_stage_arm:
    type: servo
    port: 2
    inverted: true
    offset: 1.13446 # 65 deg
+   scale: 1.0
+   
 # Individual Position Controllers ---------------------------------------
 # Allows to send individual ROS msg of Float64 to each joint separately
 
 minifrc_arm_joint_position_controller:
-  type: position_controllers/JointTrajectoryController
-  joints:
-    - base_arm
-    - second_stage_arm
+  type: position_controllers/JointPositionController
+  joint: base_arm
 
 mecanum_drive_controller:
   type: minimotor/MecanumDriveController

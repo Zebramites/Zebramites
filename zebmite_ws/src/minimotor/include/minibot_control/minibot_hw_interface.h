@@ -81,7 +81,8 @@ public:
   uint8_t port;
   double offset;
   bool inverted;
-  MiniBotServoJoint(uint8_t port, double offset, bool inverted);
+  double scale;
+  MiniBotServoJoint(uint8_t port, double offset, bool inverted, double scale);
   std::string setPosition(double cmd);
 };
 
