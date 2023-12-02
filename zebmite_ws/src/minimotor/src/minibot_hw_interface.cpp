@@ -40,13 +40,13 @@
 #include <minibot_control/minibot_hw_interface.h>
 #include <rosparam_shortcuts/rosparam_shortcuts.h>
 #include <ros/ros.h>
-#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/serial_port.hpp>
 #include <boost/asio/write.hpp>
 #include <minibot_control/interpolating_map.h>
 #include <boost/asio/io_service.hpp>
 #include <angles/angles.h>
 using namespace::boost::asio;
-using boost::asio::ip::tcp;
+using boost::asio::serial_port;
 
 namespace minibot_control
 {
@@ -144,13 +144,16 @@ namespace minibot_control
     ros::NodeHandle hwnh(nh, "hardware_interface");
 
     std::size_t error = 0;
-    std::string ip_address;
-    error += !rosparam_shortcuts::get("hardware_interface", hwnh, "ip_addr", ip_address);
+    std::string serial_port;
+    error += !rosparam_shortcuts::get("hardware_interface", hwnh, "port", serial_port);
 
-    p = new boost::asio::ip::tcp::socket(ios);
+    p = new boost::asio::serial_port(ios, serial_port);
 
-    p->connect( tcp::endpoint( boost::asio::ip::address::from_string(ip_address), 5460 ));
-
+    try {
+      p->set_option(boost::asio::serial_port_base::baud_rate(921600));
+    } catch (boost::system::system_error::exception e) {
+      ROS_ERROR_STREAM("error setting serial port baud rate");
+    }
     ROS_INFO_NAMED("minibot_hw_interface", "MiniBotHWInterface Ready.");
     for (std::string n : joint_names_) {
       std::shared_ptr<MiniBotJoint> jp = std::shared_ptr<MiniBotJoint>(parseJoint(nh, n));
