@@ -72,15 +72,81 @@ void update(const ros::Time &time, const ros::Duration &period)
 	// compute mecanum drive velocities
     const geometry_msgs::Twist curr_cmd = *(command_.readFromRT());
     
-    double new_y = -curr_cmd.linear.y;
-    double new_x = curr_cmd.linear.x;
+    double y = -curr_cmd.linear.y;
+    double x = curr_cmd.linear.x;
     double rx = -curr_cmd.angular.z;
-    
-    double denominator = std::max(std::abs(new_y) + std::abs(new_x) + std::abs(rx), 1.0d);
-    double frontLeftPower = (new_y + new_x + rx) / denominator;
-    double backLeftPower = (new_y - new_x + rx) / denominator;
-    double frontRightPower = (new_y - new_x - rx) / denominator;
-    double backRightPower = (new_y + new_x - rx) / denominator;
+
+    double angle = atan2(curr_cmd.linear.y, curr_cmd.linear.x);
+    angle *= (4 / M_PI);
+    angle = round(angle);
+    angle += 4;
+    ROS_INFO_STREAM("angle: " << angle);
+
+    double frontLeftPower = rx;
+    double backLeftPower = rx;
+    double frontRightPower = -rx;
+    double backRightPower = -rx;
+
+    if (std::sqrt(std::pow(y, 2) + std::pow(x, 2)) > 0.2) {
+
+        if (angle == 0 || angle == 8) {
+            // move to the right
+            frontLeftPower = 1;
+            backLeftPower = -1;
+            frontRightPower = -1;
+            backRightPower = 1;
+        }
+        else if (angle == 1) {
+            // move diagonally (back right)
+            frontLeftPower = 0;
+            backLeftPower = -1;
+            frontRightPower = -1;
+            backRightPower = 0;
+        }
+        else if (angle == 2) {
+            // move backwards
+            frontLeftPower = -1;
+            backLeftPower = -1;
+            frontRightPower = -1;
+            backRightPower = -1;
+        }
+        else if (angle == 3) {
+            // move diagonally (back left)
+            frontLeftPower = -1;
+            backLeftPower = 0;
+            frontRightPower = 0;
+            backRightPower = -1;
+        }
+        else if (angle == 4) {
+            // move to the left
+            frontLeftPower = -1;
+            backLeftPower = 1;
+            frontRightPower = 1;
+            backRightPower = -1;
+        }
+        else if (angle == 5) {
+            // move diagonally (front left)
+            frontLeftPower = 0;
+            backLeftPower = 1;
+            frontRightPower = 1;
+            backRightPower = 0;
+        }
+        else if (angle == 6) {
+            // move forwards
+            frontLeftPower = 1;
+            backLeftPower = 1;
+            frontRightPower = 1;
+            backRightPower = 1;
+        }
+        else if (angle == 7) {
+            // move diagonally (front right)
+            frontLeftPower = 1;
+            backLeftPower = 0;
+            frontRightPower = 0;
+            backRightPower = 1;
+        }
+
+    }
 
     // frontLeftPower *= sign(frontLeftPower); //* remap(std::abs(frontLeftPower), 0, 1, 0.5, 1) 
     // backLeftPower *= sign(backLeftPower); //* remap(std::abs(backLeftPower), 0, 1, 0.5, 1)
