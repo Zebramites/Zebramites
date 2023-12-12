@@ -68,6 +68,15 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "variant": "cpp",
-        "future": "cpp"
+        "future": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "strstream": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp",
+        "regex": "cpp",
+        "slist": "cpp",
+        "shared_mutex": "cpp",
+        "cfenv": "cpp"
     }
 }

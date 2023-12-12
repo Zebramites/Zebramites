@@ -13,6 +13,7 @@ hardware_interface:
       - fl_drive
       - br_drive
       - bl_drive
+      - intake
    sim_control_mode: 0 # 0: position, 1: velocity
    port: /dev/rfcomm0
 
@@ -50,28 +51,41 @@ bl_drive:
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 
-
+intake:
+   type: motor
+   port: 5
+   inverted: true
+   velocity_mult: 1.0
+   velocity_feed_forward: 0.0
 
 base_arm:
    type: servo
    port: 1
    inverted: false
-   offset: 0 #1.606706 # 17 deg + 90ish deg
-   scale: 1.667
+   offset: 0.0 #1.606706 # 17 deg + 90ish deg
+   scale: 1.0
 
 second_stage_arm:
    type: servo
    port: 2
-   inverted: true
-   offset: 1.13446 # 65 deg
-   scale: 1.0
-   
+   inverted: false
+   offset: 0.0 # 65 deg
+   scale: 1.667
+
 # Individual Position Controllers ---------------------------------------
 # Allows to send individual ROS msg of Float64 to each joint separately
 
-minifrc_arm_joint_position_controller:
+base_arm_controller:
   type: position_controllers/JointPositionController
   joint: base_arm
+
+intake_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: intake
+
+second_stage_arm_controller:
+   type: position_controllers/JointPositionController
+   joint: second_stage_arm
 
 mecanum_drive_controller:
   type: minimotor/MecanumDriveController
