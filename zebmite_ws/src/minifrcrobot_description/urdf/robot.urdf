@@ -170,7 +170,7 @@
 <parent link="base_arm_part" />
 <child link="part_1" />
 <axis xyz="0 0 1"/>
-<limit effort="1" velocity="20" lower="-6.28" upper="6.28" />
+<limit effort="1" velocity="0.1" lower="-2.2" upper="1.6" />
 <joint_properties friction="0.0"/>
 </joint>
 
@@ -179,7 +179,7 @@
 <parent link="_hs-322hd" />
 <child link="base_arm_part" />
 <axis xyz="0 0 1"/>
-<limit effort="1" velocity="20" lower="-1.6" upper="1.6" />
+<limit effort="1" velocity="0.1" lower="-1.22" upper="1.6" />
 <joint_properties friction="0.0"/>
 </joint>
 

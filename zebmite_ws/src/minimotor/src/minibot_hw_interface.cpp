@@ -131,7 +131,7 @@ namespace minibot_control
       error += !rosparam_shortcuts::get(n, rpnh, "offset", offset);
       error += !rosparam_shortcuts::get(n, rpnh, "scale", scale);
       MiniBotServoJoint* j = new MiniBotServoJoint(port, offset, inverted, scale);
-      ROS_INFO_STREAM("Servo joint, name = " << n << ", port = " << port << ", offset = " << offset << ", scale = " << scale);
+      ROS_INFO_STREAM("Servo joint, name = " << n << ", port = " << port << ", offset = " << offset << ", scale = " << scale << ", inverted = " << inverted);
       rosparam_shortcuts::shutdownIfError(n, error);
       return j;
     }
@@ -201,7 +201,7 @@ namespace minibot_control
       }
     }
 
-    // ROS_INFO_STREAM("Sending command " << command); // TODO replace with actual write
+    ROS_INFO_STREAM("Sending command " << command); // TODO replace with actual write
     p->write_some(boost::asio::buffer(command));
 
   }

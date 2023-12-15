@@ -6,4 +6,4 @@ controller_list:
       - second_stage_arm
 initial:  # Define initial robot poses per group
   - group: armplangroup
-    pose: stow
+    pose: rest

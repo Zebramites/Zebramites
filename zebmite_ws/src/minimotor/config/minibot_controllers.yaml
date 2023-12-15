@@ -69,7 +69,7 @@ second_stage_arm:
    type: servo
    port: 4
    inverted: false
-   offset: 0.0 # 65 deg
+   offset: 2.62 # 65 deg
    scale: 1.667
 
 # Individual Position Controllers ---------------------------------------
@@ -89,3 +89,7 @@ intake_controller:
 mecanum_drive_controller:
   type: minimotor/MecanumDriveController
   # add parameters sometime maybe
+
+initial:
+   - group: armplangroup
+     pose: rest

@@ -40,6 +40,14 @@
         <joint name="base_arm" value="0.2652"/>
         <joint name="second_stage_arm" value="-0.5163"/>
     </group_state>
+    <group_state name="rest" group="armplangroup">
+        <joint name="base_arm" value="-0.94"/>
+        <joint name="second_stage_arm" value="-2.19"/>
+    </group_state>
+    <group_state name="floor_double_substation_intake" group="armplangroup">
+        <joint name="base_arm" value="-0.94"/>
+        <joint name="second_stage_arm" value="1.0"/>
+    </group_state>
     <group_state name="test_state" group="armplangroup">
         <joint name="base_arm" value="-0.2652"/>
         <joint name="second_stage_arm" value="4.0"/>

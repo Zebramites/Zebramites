@@ -80,7 +80,6 @@ void update(const ros::Time &time, const ros::Duration &period)
     angle *= (4 / M_PI);
     angle = round(angle);
     angle += 4;
-    ROS_INFO_STREAM("angle: " << angle);
 
     double frontLeftPower = rx;
     double backLeftPower = rx;
