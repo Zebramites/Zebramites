@@ -11,5 +11,6 @@
     "onshape_access_key":"Fw444NIbJZE8gKqUpLRKq9bt",
     "onshape_secret_key":"B7LTLtbvkUuEf58U4PxnJ6eQ7Oy69YDh3ZREWMrVjvrcM7le",
     "addDummyBaseLink": true,
-    "assemblyName":"ARM_ASSEMBLY"
+    "assemblyName":"ARM_ASSEMBLY_2",
+    "useFixedLinks": true
 }
