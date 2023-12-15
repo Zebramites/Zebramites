@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <launch>
   <group ns="minibot">
+
+  <arg name="use_rviz" default="false" />
    
   <include file="$(find minifrc_arm_moveit_config)/launch/demo.launch">
-    <arg name="use_rviz" value="false"/>
+    <arg name="use_rviz" value="$(arg use_rviz)"/>
   </include>
 
    <!-- GDB functionality -->

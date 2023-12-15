@@ -25,14 +25,14 @@ joint_state_controller:
 
 fr_drive:
    type: motor
-   port: 2
+   port: 3
    inverted: false
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 
 fl_drive:
    type: motor
-   port: 1
+   port: 2
    inverted: true
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
@@ -46,7 +46,7 @@ br_drive:
    
 bl_drive:
    type: motor
-   port: 3
+   port: 1
    inverted: true
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
@@ -67,7 +67,7 @@ base_arm:
 
 second_stage_arm:
    type: servo
-   port: 2
+   port: 4
    inverted: false
    offset: 0.0 # 65 deg
    scale: 1.667
