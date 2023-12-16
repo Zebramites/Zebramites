@@ -22,7 +22,7 @@
     </group_state>
     <group_state name="score_high" group="armplangroup">
         <joint name="base_arm" value="0.16"/>
-        <joint name="second_stage_arm" value="-1.554"/>
+        <joint name="second_stage_arm" value="-1.44"/>
     </group_state>
     <group_state name="score_mid" group="armplangroup">
         <joint name="base_arm" value="0.19"/>

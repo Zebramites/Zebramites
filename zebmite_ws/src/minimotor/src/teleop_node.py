@@ -5,6 +5,8 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import Float64
 import moveit_commander
 import sys
+import math
+import time
 
 # 900 comp joystick: Bus 003 Device 055: ID 045e:028e Microsoft Corp. Xbox360 Controller
 # Xbox controller: Bus 003 Device 045: ID 045e:02ea Microsoft Corp. Xbox One S Controller
@@ -19,14 +21,14 @@ moveit_commander.roscpp_initialize(sys.argv)
 robot = moveit_commander.RobotCommander()
 group = moveit_commander.MoveGroupCommander("armplangroup")
 
-def move_with_moveit(path_name: str):
+def move_with_moveit(path_name: str, wait: bool = False):
     group.stop()
     group.clear_pose_targets()
     rospy.loginfo(f"Moving to {path_name} position")
     group.set_named_target(path_name)
-    plan = group.go(wait=False)
+    plan = group.go(wait=wait)
 
-ANGULAR_SPEED_MULTIPLIER = 2
+ANGULAR_SPEED_MULTIPLIER = 0.8
 
 def callback(msg):
     global intake_at_low_speed, LOW_INTAKE_SPEED, ANGULAR_SPEED_MULTIPLIER
@@ -34,7 +36,7 @@ def callback(msg):
     twist = Twist()
     twist.linear.x = msg.axes[0]
     twist.linear.y = msg.axes[1]
-    twist.angular.z = (-1 if msg.axes[3] > 0 else 1) * msg.axes[3] ** ANGULAR_SPEED_MULTIPLIER
+    twist.angular.z = -1 * (-1 if msg.axes[3] > 0 else 1) * ANGULAR_SPEED_MULTIPLIER * min(1, msg.axes[3] ** 2 + (0.5 if msg.axes[3] > 0 else 0))
 
     # button 4 is intake, button 5 is outtake
     # if we have a cube then run at 80% speed inward to hold the cube in
@@ -66,8 +68,8 @@ op_dpad_down_pressed = False
 op_dpad_left_pressed = False
 op_dpad_right_pressed = False
 
-RED_TIME = 1000
-BLUE_TIME = 500
+RED_TIME = 750
+BLUE_TIME = 750
 
 def operator_callback(msg):
     global intake_at_low_speed, op_cube_button_pressed, op_A_pressed, op_B_pressed, op_X_pressed, op_Y_pressed, op_LT_pressed, op_RT_pressed, op_dpad_down_pressed, op_dpad_left_pressed, op_dpad_right_pressed, op_three_lines_button_pressed
@@ -145,11 +147,25 @@ def operator_callback(msg):
 
     # Dpad left -> red auto
     if msg.axes[6] == 1 and not op_dpad_left_pressed:
+        move_with_moveit("score_high", wait=True)
+        time.sleep(1)
+        pub_intake.publish(-1)
+        time.sleep(0.5)
+        pub_intake.publish(0)
+        move_with_moveit("rest", wait=True)
+        time.sleep(1)
         pub_auto.publish(RED_TIME) # drive back
     op_dpad_left_pressed = msg.axes[6] == 1
     
     # Dpad right -> blue auto
     if msg.axes[6] == -1 and not op_dpad_right_pressed:
+        move_with_moveit("score_high", wait=True)
+        time.sleep(1)
+        pub_intake.publish(-1)
+        time.sleep(0.5)
+        pub_intake.publish(0)
+        move_with_moveit("rest", wait=True)
+        time.sleep(1)
         pub_auto.publish(BLUE_TIME) # drive back
     op_dpad_right_pressed = msg.axes[6] == -1
 

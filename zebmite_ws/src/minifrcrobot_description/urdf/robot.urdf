@@ -179,9 +179,9 @@
 <parent link="_hs-322hd" />
 <child link="base_arm_part" />
 <axis xyz="0 0 1"/>
-<limit effort="1" velocity="5.0" lower="-1.22" upper="1.6" />
+<limit effort="1" velocity="3.14" lower="-1.22" upper="1.6" />
 <joint_properties friction="0.0"/>
-</joint>
+</joint>                
 
 <joint name="servo_link" type="fixed">
 <origin xyz="0.028574999999999999706 -6.9388939039072283776e-18 0.025400000000000016315" rpy="-1.570796326794896558 1.5707963267948961139 0" />
