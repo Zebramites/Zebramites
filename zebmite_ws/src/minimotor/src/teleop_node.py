@@ -26,13 +26,15 @@ def move_with_moveit(path_name: str):
     group.set_named_target(path_name)
     plan = group.go(wait=False)
 
+ANGULAR_SPEED_MULTIPLIER = 2
+
 def callback(msg):
-    global intake_at_low_speed, LOW_INTAKE_SPEED
+    global intake_at_low_speed, LOW_INTAKE_SPEED, ANGULAR_SPEED_MULTIPLIER
     # publish cmd velocity with joystick input
     twist = Twist()
     twist.linear.x = msg.axes[0]
     twist.linear.y = msg.axes[1]
-    twist.angular.z = msg.axes[3]
+    twist.angular.z = (-1 if msg.axes[3] > 0 else 1) * msg.axes[3] ** ANGULAR_SPEED_MULTIPLIER
 
     # button 4 is intake, button 5 is outtake
     # if we have a cube then run at 80% speed inward to hold the cube in
@@ -40,6 +42,7 @@ def callback(msg):
         pub_intake.publish(1)
     elif msg.axes[5] < -0.5:
         pub_intake.publish(-1)
+        intake_at_low_speed = False
     elif intake_at_low_speed:
         pub_intake.publish(LOW_INTAKE_SPEED)
     else:
@@ -52,6 +55,7 @@ def callback(msg):
 LOW_INTAKE_SPEED = 0.8
 intake_at_low_speed = False
 op_cube_button_pressed = False
+op_three_lines_button_pressed = False
 op_A_pressed = False
 op_B_pressed = False
 op_X_pressed = False
@@ -66,7 +70,7 @@ RED_TIME = 1000
 BLUE_TIME = 500
 
 def operator_callback(msg):
-    global intake_at_low_speed, op_cube_button_pressed, op_A_pressed, op_B_pressed, op_X_pressed, op_Y_pressed, op_LT_pressed, op_RT_pressed, op_dpad_down_pressed, op_dpad_left_pressed, op_dpad_right_pressed
+    global intake_at_low_speed, op_cube_button_pressed, op_A_pressed, op_B_pressed, op_X_pressed, op_Y_pressed, op_LT_pressed, op_RT_pressed, op_dpad_down_pressed, op_dpad_left_pressed, op_dpad_right_pressed, op_three_lines_button_pressed
 
     # Place high -> Y
     # Place mid -> B
@@ -102,14 +106,15 @@ def operator_callback(msg):
     # cube shaped button -> toggle low speed holding
     if msg.buttons[6] and not op_cube_button_pressed:
         intake_at_low_speed = not intake_at_low_speed
+        rospy.loginfo(f"Intake at low speed: {intake_at_low_speed}")
     op_cube_button_pressed = msg.buttons[6]
 
     # ------------------------------------------------------------------------
 
     # Three lines button -> intake from ground cube
-    if msg.buttons[7] and not op_cube_button_pressed:
+    if msg.buttons[7] and not op_three_lines_button_pressed:
         move_with_moveit("floor_cube")
-    op_cube_button_pressed = msg.buttons[7]
+    op_three_lines_button_pressed = msg.buttons[7]
 
     # Y -> high arm position
     if msg.buttons[3] and not op_Y_pressed:
