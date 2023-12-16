@@ -86,6 +86,9 @@ void update(const ros::Time &time, const ros::Duration &period)
     double frontRightPower = -rx;
     double backRightPower = -rx;
 
+    double stickMagnitude = std::sqrt(std::pow(y, 2) + std::pow(x, 2));
+    double magnitude = stickMagnitude > 0 ? stickMagnitude : 1;
+
     if (std::sqrt(std::pow(y, 2) + std::pow(x, 2)) > 0.2) {
 
         if (angle == 0 || angle == 8) {
@@ -146,6 +149,11 @@ void update(const ros::Time &time, const ros::Duration &period)
         }
 
     }
+
+    frontLeftPower *= magnitude;
+    backLeftPower *= magnitude;
+    frontRightPower *= magnitude;
+    backRightPower *= magnitude;
 
     // frontLeftPower *= sign(frontLeftPower); //* remap(std::abs(frontLeftPower), 0, 1, 0.5, 1) 
     // backLeftPower *= sign(backLeftPower); //* remap(std::abs(backLeftPower), 0, 1, 0.5, 1)

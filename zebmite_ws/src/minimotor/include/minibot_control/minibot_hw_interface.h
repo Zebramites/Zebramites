@@ -54,6 +54,7 @@ enum JointType { motor, servo };
 class MiniBotJoint {
 public:
   JointType type;
+  double initial_position;
   MiniBotJoint(JointType t);
   MiniBotJoint();
 
@@ -82,7 +83,7 @@ public:
   double offset;
   bool inverted;
   double scale;
-  MiniBotServoJoint(uint8_t port, double offset, bool inverted, double scale);
+  MiniBotServoJoint(uint8_t port, double offset, bool inverted, double scale, double initial_position);
   std::string setPosition(double cmd);
 };
 

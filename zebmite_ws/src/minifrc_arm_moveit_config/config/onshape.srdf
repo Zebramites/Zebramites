@@ -24,13 +24,25 @@
         <joint name="base_arm" value="0.077"/>
         <joint name="second_stage_arm" value="-1.554"/>
     </group_state>
+    <group_state name="score_mid" group="armplangroup">
+        <joint name="base_arm" value="0.19"/>
+        <joint name="second_stage_arm" value="-2.19"/>
+    </group_state>
     <group_state name="rest" group="armplangroup">
         <joint name="base_arm" value="-0.94"/>
         <joint name="second_stage_arm" value="-2.19"/>
     </group_state>
-    <group_state name="floor_double_substation_intake" group="armplangroup">
+    <group_state name="floor_intake" group="armplangroup">
         <joint name="base_arm" value="-0.94"/>
-        <joint name="second_stage_arm" value="0.94"/> <!-- was 1.0 -->
+        <joint name="second_stage_arm" value="0.94"/>
+    </group_state>
+    <group_state name="floor_cube" group="armplangroup">
+        <joint name="base_arm" value="-0.4"/>
+        <joint name="second_stage_arm" value="1.599"/>
+    </group_state>
+    <group_state name="double_substation_intake" group="armplangroup">
+        <joint name="base_arm" value="-0.94"/>
+        <joint name="second_stage_arm" value="0.118"/>
     </group_state>
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
     <virtual_joint name="virtual_joint" type="fixed" parent_frame="world" child_link="base_link"/>

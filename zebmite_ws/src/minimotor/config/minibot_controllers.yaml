@@ -15,7 +15,7 @@ hardware_interface:
       - bl_drive
       - intake
    sim_control_mode: 0 # 0: position, 1: velocity
-   port: /dev/rfcomm0
+   port: /dev/tty2
 
 # Publish all joint states ----------------------------------
 # Creates the /joint_states topic necessary in ROS
@@ -64,6 +64,7 @@ base_arm:
    inverted: false
    offset: 1.57 # 90 deg
    scale: 1.0
+   initial_position: -0.94
 
 second_stage_arm:
    type: servo
@@ -71,6 +72,7 @@ second_stage_arm:
    inverted: false
    offset: 2.62 # 65 deg
    scale: 1.667
+   initial_position: -2.19
 
 # Individual Position Controllers ---------------------------------------
 # Allows to send individual ROS msg of Float64 to each joint separately

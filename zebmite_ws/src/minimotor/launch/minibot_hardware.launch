@@ -36,6 +36,11 @@
       <param name="dev" value="/dev/input/js0"/>
     </node>
 
+    <node name="joy_node_operator" pkg="joy" type="joy_node">
+      <remap from="joy" to="joy_operator"/>
+      <param name="dev" value="/dev/input/js1"/>
+    </node>
+
     <node name="teleop_node" pkg="minimotor" type="teleop_node.py"/>
 
   </group>

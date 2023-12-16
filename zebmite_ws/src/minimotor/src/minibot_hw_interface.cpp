@@ -80,8 +80,8 @@ namespace minibot_control
 
   // Servos
 
-  MiniBotServoJoint::MiniBotServoJoint(uint8_t port, double offset, bool inverted, double scale) : MiniBotJoint(motor), port(port), offset(offset), inverted(inverted), scale(scale) {
-    
+  MiniBotServoJoint::MiniBotServoJoint(uint8_t port, double offset, bool inverted, double scale, double initial_position) : MiniBotJoint(motor), port(port), offset(offset), inverted(inverted), scale(scale) {
+    this->initial_position = initial_position;
   }
 
   std::string MiniBotServoJoint::setPosition(double cmd) {
@@ -126,12 +126,15 @@ namespace minibot_control
       double offset;
       double scale;
       bool inverted;
+      double initial_position;
       error += !rosparam_shortcuts::get(n, rpnh, "inverted", inverted);
       error += !rosparam_shortcuts::get(n, rpnh, "port", port);
       error += !rosparam_shortcuts::get(n, rpnh, "offset", offset);
       error += !rosparam_shortcuts::get(n, rpnh, "scale", scale);
-      MiniBotServoJoint* j = new MiniBotServoJoint(port, offset, inverted, scale);
-      ROS_INFO_STREAM("Servo joint, name = " << n << ", port = " << port << ", offset = " << offset << ", scale = " << scale << ", inverted = " << inverted);
+      error += !rosparam_shortcuts::get(n, rpnh, "initial_position", initial_position);
+      MiniBotServoJoint* j = new MiniBotServoJoint(port, offset, inverted, scale, initial_position);
+      j->setPosition(initial_position);
+      ROS_INFO_STREAM("Servo joint, name = " << n << ", port = " << port << ", offset = " << offset << ", scale = " << scale << ", inverted = " << inverted << ", initial_position = " << initial_position);
       rosparam_shortcuts::shutdownIfError(n, error);
       return j;
     }
@@ -161,6 +164,17 @@ namespace minibot_control
       std::shared_ptr<MiniBotJoint> jp = std::shared_ptr<MiniBotJoint>(parseJoint(nh, n));
       joints_[n] = jp;
     }
+    // ROS_INFO_STREAM("Parsed " << joints_.size() << " joints");
+    // for (std::size_t joint_id = 0; joint_id < joints_.size(); ++joint_id) {
+    //   auto thisJoint = joints_[joint_names_[joint_id]];
+    //   ROS_INFO_STREAM("Joint " << joint_names_[joint_id] << " has type " << thisJoint->type);
+    //   if (thisJoint->type == motor) {
+    //     joint_velocity_[joint_id] = 0.0;
+    //   } else if (thisJoint->type == servo) {
+    //     joint_position_[joint_id] = thisJoint->initial_position;
+    //     ROS_INFO_STREAM("Initial joint position for " << joint_names_[joint_id] << " = " << joint_position_[joint_id]);
+    //   }
+    // }
   }
 
   void MiniBotHWInterface::read(ros::Duration& elapsed_time)
