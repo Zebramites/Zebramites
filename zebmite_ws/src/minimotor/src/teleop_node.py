@@ -13,6 +13,7 @@ rospy.init_node('teleop_node', anonymous=True)
 
 pub = rospy.Publisher("/minibot/mecanum_drive_controller/cmd_vel", Twist)
 pub_intake = rospy.Publisher("/minibot/intake_controller/command", Float64)
+pub_auto = rospy.Publisher("/minibot/auto_controller/command", Float64)
 
 moveit_commander.roscpp_initialize(sys.argv)
 robot = moveit_commander.RobotCommander()
@@ -58,9 +59,14 @@ op_Y_pressed = False
 op_LT_pressed = False
 op_RT_pressed = False
 op_dpad_down_pressed = False
+op_dpad_left_pressed = False
+op_dpad_right_pressed = False
+
+RED_TIME = 1000
+BLUE_TIME = 500
 
 def operator_callback(msg):
-    global intake_at_low_speed, op_cube_button_pressed, op_A_pressed, op_B_pressed, op_X_pressed, op_Y_pressed, op_LT_pressed, op_RT_pressed, op_dpad_down_pressed
+    global intake_at_low_speed, op_cube_button_pressed, op_A_pressed, op_B_pressed, op_X_pressed, op_Y_pressed, op_LT_pressed, op_RT_pressed, op_dpad_down_pressed, op_dpad_left_pressed, op_dpad_right_pressed
 
     # Place high -> Y
     # Place mid -> B
@@ -75,6 +81,8 @@ def operator_callback(msg):
     # Low speed toggle -> cube shaped button
 
     # Dpad down -> moveit zero
+
+    # AUTOS: dpad left = red, dpad right = blue
     
     # button mapping 
     # 0: A, 1: B, 2: X, 3: Y, 4: LB, 5: RB, 6: Back (cube shaped), 7: Start (three lines button), 8: Xbox, 9: Left joystick, 10: Right joystick
@@ -127,7 +135,18 @@ def operator_callback(msg):
     if msg.axes[7] == -1 and not op_dpad_down_pressed:
         move_with_moveit("moveit_zero")
     op_dpad_down_pressed = msg.axes[7] == -1
+
+    # ------------------------------------------------------------------------
+
+    # Dpad left -> red auto
+    if msg.axes[6] == 1 and not op_dpad_left_pressed:
+        pub_auto.publish(RED_TIME) # drive back
+    op_dpad_left_pressed = msg.axes[6] == 1
     
+    # Dpad right -> blue auto
+    if msg.axes[6] == -1 and not op_dpad_right_pressed:
+        pub_auto.publish(BLUE_TIME) # drive back
+    op_dpad_right_pressed = msg.axes[6] == -1
 
 rospy.Subscriber("/minibot/joy_operator", Joy, operator_callback)
 rospy.Subscriber("/minibot/joy", Joy, callback)

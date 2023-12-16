@@ -232,4 +232,12 @@
     <origin rpy="0.0 0 0" xyz="0 0 0"/>
 </joint>
 
+<link name="auto_motor_link"></link>
+
+<joint name="auto_motor" type="fixed">
+    <parent link="base_link"/>
+    <child link="auto_motor_link" />
+    <origin rpy="0.0 0 0" xyz="0 0 0"/>
+</joint>
+
 </robot>

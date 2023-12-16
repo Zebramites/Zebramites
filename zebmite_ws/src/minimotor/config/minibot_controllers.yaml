@@ -14,6 +14,7 @@ hardware_interface:
       - br_drive
       - bl_drive
       - intake
+      - auto_motor
    sim_control_mode: 0 # 0: position, 1: velocity
    port: /dev/rfcomm0
 
@@ -58,6 +59,13 @@ intake:
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 
+auto_motor:
+   type: motor
+   port: 32
+   inverted: false
+   velocity_mult: 0.0001
+   velocity_feed_forward: 0.0
+
 base_arm:
    type: servo
    port: 1
@@ -87,6 +95,10 @@ minifrc_arm_joint_position_controller:
 intake_controller:
   type: velocity_controllers/JointVelocityController
   joint: intake
+
+auto_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: auto_motor
 
 mecanum_drive_controller:
   type: minimotor/MecanumDriveController
