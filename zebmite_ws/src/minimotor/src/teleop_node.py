@@ -57,9 +57,10 @@ op_X_pressed = False
 op_Y_pressed = False
 op_LT_pressed = False
 op_RT_pressed = False
+op_dpad_down_pressed = False
 
 def operator_callback(msg):
-    global intake_at_low_speed, op_cube_button_pressed, op_A_pressed, op_B_pressed, op_X_pressed, op_Y_pressed
+    global intake_at_low_speed, op_cube_button_pressed, op_A_pressed, op_B_pressed, op_X_pressed, op_Y_pressed, op_LT_pressed, op_RT_pressed, op_dpad_down_pressed
 
     # Place high -> Y
     # Place mid -> B
@@ -72,6 +73,8 @@ def operator_callback(msg):
     # Rest -> X
 
     # Low speed toggle -> cube shaped button
+
+    # Dpad down -> moveit zero
     
     # button mapping 
     # 0: A, 1: B, 2: X, 3: Y, 4: LB, 5: RB, 6: Back (cube shaped), 7: Start (three lines button), 8: Xbox, 9: Left joystick, 10: Right joystick
@@ -112,13 +115,19 @@ def operator_callback(msg):
     
     # A -> low arm position
     if msg.buttons[0] and not op_A_pressed:
-        move_with_moveit("score_low")
+        move_with_moveit("rest") # TODO find low position
     op_A_pressed = msg.buttons[0]
 
     # X -> rest position
     if msg.buttons[2] and not op_X_pressed:
         move_with_moveit("rest")
     op_X_pressed = msg.buttons[2]
+
+    # Dpad down -> moveit zero
+    if msg.axes[7] == -1 and not op_dpad_down_pressed:
+        move_with_moveit("moveit_zero")
+    op_dpad_down_pressed = msg.axes[7] == -1
+    
 
 rospy.Subscriber("/minibot/joy_operator", Joy, operator_callback)
 rospy.Subscriber("/minibot/joy", Joy, callback)

@@ -15,7 +15,7 @@ hardware_interface:
       - bl_drive
       - intake
    sim_control_mode: 0 # 0: position, 1: velocity
-   port: /dev/tty2
+   port: /dev/rfcomm0
 
 # Publish all joint states ----------------------------------
 # Creates the /joint_states topic necessary in ROS
