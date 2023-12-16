@@ -4,6 +4,7 @@ from sensor_msgs.msg import Joy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float64
 
+# 900 comp joystick: Bus 003 Device 055: ID 045e:028e Microsoft Corp. Xbox360 Controller
 
 rospy.init_node('teleop_node', anonymous=True)
 
@@ -18,9 +19,10 @@ def callback(msg):
     twist.angular.z = msg.axes[3]
 
     # button 4 is intake, button 5 is outtake
-    if msg.buttons[4] == 1:
+    # if we have a cube then run at 80% speed inward to hold the cube in
+    if msg.axes[2] < -0.5:
         pub_intake.publish(1)
-    elif msg.buttons[5] == 1:
+    elif msg.axes[5] < -0.5:
         pub_intake.publish(-1)
     else:
         pub_intake.publish(0)
