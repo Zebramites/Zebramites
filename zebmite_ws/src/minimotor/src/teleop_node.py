@@ -34,8 +34,8 @@ def callback(msg):
     global intake_at_low_speed, LOW_INTAKE_SPEED, ANGULAR_SPEED_MULTIPLIER
     # publish cmd velocity with joystick input
     twist = Twist()
-    twist.linear.x = msg.axes[0]
-    twist.linear.y = msg.axes[1]
+    twist.linear.x = -msg.axes[0]
+    twist.linear.y = -msg.axes[1]
     twist.angular.z = -1 * (-1 if msg.axes[3] > 0 else 1) * ANGULAR_SPEED_MULTIPLIER * min(1, msg.axes[3] ** 2 + (0.5 if msg.axes[3] > 0 else 0))
 
     # button 4 is intake, button 5 is outtake
