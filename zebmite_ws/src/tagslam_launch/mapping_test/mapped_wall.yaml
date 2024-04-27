@@ -44,8 +44,8 @@ bodies:
          size: 0.06000000
          pose:
            position:
-             x: 0.33529462
-             y: -0.61784322
+             x: 0.33529462 # actually 0.31
+             y: -0.61784322 # actually -0.603
              z: 0.01151187
            rotation:
              x: -0.00244982
@@ -63,8 +63,8 @@ bodies:
          size: 0.06000000
          pose:
            position:
-             x: 0.17149670
-             y: -0.36151722
+             x: 0.17149670 # actually 0.155
+             y: -0.36151722 # actually -0.35
              z: 0.00505262
            rotation:
              x: -0.00563027
@@ -82,8 +82,8 @@ bodies:
          size: 0.06000000
          pose:
            position:
-             x: 0.27918254
-             y: -0.02160810
+             x: 0.27918254 # actually 0.274
+             y: -0.02160810 # actually -0.02
              z: 0.00672644
            rotation:
              x: -0.01249942
@@ -101,8 +101,8 @@ bodies:
          size: 0.06000000
          pose:
            position:
-             x: 0.56499652
-             y: 0.33364093
+             x: 0.56499652 # actually 0.565
+             y: 0.33364093 # actually 0.336
              z: 0.01490875
            rotation:
              x: -0.02996681
@@ -120,8 +120,8 @@ bodies:
          size: 0.06000000
          pose:
            position:
-             x: -0.17312529
-             y: -0.71357817
+             x: -0.17312529 # actually -0.16 (but that wasn't measured very accurately)
+             y: -0.71357817 # actually -0.68
              z: 0.00353406
            rotation:
              x: 0.00508159
@@ -139,8 +139,8 @@ bodies:
          size: 0.06000000
          pose:
            position:
-             x: 0.91014303
-             y: -0.38323434
+             x: 0.91014303 # actually 0.905
+             y: -0.38323434 # actually -0.385
              z: 0.03897192
            rotation:
              x: 0.00341407
