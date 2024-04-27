@@ -6,10 +6,10 @@ dev_dir="$( dirname "$dev_dir" )"
 set -e
 set -o pipefail
 
-docker run "$@" -it --net=host -v  /tmp/.X11-unix:/tmp/.X11-unix \
- -v /dev:/dev \
+docker run "$@" -it --gpus all --net=host -v  /tmp/.X11-unix:/tmp/.X11-unix \
+ -v /dev:/dev --privileged \
  -v $HOME/2023RobotCode:/home/ubuntu/.2023RobotCode.readonly \
- -v $HOME/minifrc:/home/ubuntu/minifrc \
+ -v $HOME/Zebramites:/home/ubuntu/Zebramites \
  --ipc=host \
  --shm-size=8G \
- -e DISPLAY=$DISPLAY -e NVIDIA_DRIVER_CAPABILITIES=all --privileged --user ubuntu zebramites2023 /bin/bash
+ -e DISPLAY=$DISPLAY -e NVIDIA_DRIVER_CAPABILITIES=all --user ubuntu benbean18/zebramites2024 /bin/bash

@@ -1,0 +1,6 @@
+[submodule "971-Robot-Code"]
+	path = 971-Robot-Code
+	url = git@github.com:FRC900/971-Robot-Code.git
+[submodule "cccl"]
+	path = cccl
+	url = https://github.com/NVIDIA/cccl.git
