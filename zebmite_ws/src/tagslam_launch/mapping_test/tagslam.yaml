@@ -81,6 +81,6 @@ bodies:
 
 
 # no odom, only camera
- - minifrc_robot:
+ - camera:
      is_static: false
      type: simple
