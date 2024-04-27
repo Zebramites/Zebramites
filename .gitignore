@@ -66,5 +66,6 @@ tagslam/
 tagslam_viz/
 gpu_apriltag/
 zed-ros-wrapper/
-
+bagfiles/
+*.bag
 .vscode/

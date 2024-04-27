@@ -1,0 +1,5 @@
+cam0:
+  infotopic: /usb_cam/camera_info
+  rostopic: /gibberish
+  tagtopic: /apriltag_detection/tags
+  rig_body: minifrc_robot
