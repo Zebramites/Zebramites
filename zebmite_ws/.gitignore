@@ -56,5 +56,15 @@ apriltag/
 image_pipeline/
 ros_control_boilerplate/
 gazebo_ros_demos/
+actionlib/
+ddynamic_reconfigure/
+ddynamic_reconfigure_python/
+field_obj/
+flex_sync/
+gazebo_ros_demos/
+tagslam/
+tagslam_viz/
+gpu_apriltag/
+zed-ros-wrapper/
 
 .vscode/
