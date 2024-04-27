@@ -12,4 +12,4 @@ docker run "$@" -it --gpus all --net=host -v  /tmp/.X11-unix:/tmp/.X11-unix \
  -v $HOME/Zebramites:/home/ubuntu/Zebramites \
  --ipc=host \
  --shm-size=8G \
- -e DISPLAY=$DISPLAY -e NVIDIA_DRIVER_CAPABILITIES=all --user ubuntu benbean18/zebramites2024 /bin/bash
+ -e DISPLAY=$DISPLAY -e NVIDIA_DRIVER_CAPABILITIES=all --user ubuntu frc900/zebros-2024-dev:latest /bin/bash
