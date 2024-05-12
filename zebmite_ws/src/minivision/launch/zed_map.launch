@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!--
+Copyright (c) 2023, STEREOLABS.
+
+All rights reserved.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<launch>
+    <arg name="svo_file"             default="" /> <!-- <arg name="svo_file" default="path/to/svo/file.svo"> -->
+    <arg name="stream"               default="" /> <!-- <arg name="stream" default="<ip_address>:<port>"> -->
+
+    <arg name="zed_name"             default="zed_mapping" />
+    <arg name="zed_config_dir"       default="$(arg zed_name)" />
+
+    <arg name="node_name"            default="zed2" />
+    <arg name="camera_model"         default="zed2" />
+    <arg name="publish_urdf"         default="true" />
+
+    <arg name="camera_name"          default="zed2" />
+
+    <arg name="base_frame"           default="base_link" />
+
+    <arg name="cam_pos_x"             default="0.0" /> <!-- Position respect to base frame (i.e. "base_link) -->
+    <arg name="cam_pos_y"             default="0.0" /> <!-- Position respect to base frame (i.e. "base_link) -->
+    <arg name="cam_pos_z"             default="0.0" /> <!-- Position respect to base frame (i.e. "base_link) -->
+    <arg name="cam_roll"              default="0.0" /> <!-- Orientation respect to base frame (i.e. "base_link) -->
+    <arg name="cam_pitch"             default="0.0" /> <!-- Orientation respect to base frame (i.e. "base_link) -->
+    <arg name="cam_yaw"               default="0.0" /> <!-- Orientation respect to base frame (i.e. "base_link) -->
+
+    <node pkg="nodelet" type="nodelet" name="nodelets" args="manager" output="screen"/>
+    <node pkg="nodelet" type="nodelet" name="apriltag_detection" args="load frc971_gpu_apriltag/FRC971GpuApriltagNodelet /nodelets" output="screen" >
+        <remap from="image_rect_color" to="/zed2/left/image_rect_color" />
+        <!-- Match tag topic to CPU apriltag detection topic names -->
+        <!-- <remap from="/apriltag_$(arg zed_name)/apriltag_detection/tag_detection_msg" to="/apriltag_$(arg zed_name)/tag_detection_msg"/> -->
+    </node>
+
+    <include file="$(find zed_wrapper)/launch/include/zed_camera_nodelet.launch">
+        <arg name="camera_name"         value="$(arg camera_name)" />
+        <arg name="svo_file"            value="$(arg svo_file)" />
+        <arg name="stream"              value="$(arg stream)" />
+        <arg name="node_name"           value="$(arg node_name)" />
+        <arg name="camera_model"        value="$(arg camera_model)" />
+        <arg name="base_frame"          value="$(arg base_frame)" />
+        <arg name="publish_urdf"        value="$(arg publish_urdf)" />
+        <arg name="cam_pos_x"           value="$(arg cam_pos_x)" />
+        <arg name="cam_pos_y"           value="$(arg cam_pos_y)" />
+        <arg name="cam_pos_z"           value="$(arg cam_pos_z)" />
+        <arg name="cam_roll"            value="$(arg cam_roll)" />
+        <arg name="cam_pitch"           value="$(arg cam_pitch)" />
+        <arg name="cam_yaw"             value="$(arg cam_yaw)" />
+
+        <arg name="common_params_file"   value="$(find minivision)/config/$(arg zed_config_dir)/common.yaml" />
+        <arg name="camera_params_file"   value="$(find minivision)/config/$(arg zed_config_dir)/$(arg camera_model).yaml" />
+        <arg name="nodelet_manager_name" value="/nodelets" />
+    </include>
+</launch>
