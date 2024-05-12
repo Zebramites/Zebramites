@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   urdf
   ros_control_boilerplate
   controller_interface
+  geometry_msgs
 )
 
 ## System dependencies are found with CMake's conventions

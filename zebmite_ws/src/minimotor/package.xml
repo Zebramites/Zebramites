@@ -66,6 +66,7 @@
   <depend>urdf</depend>
   <depend>ros_control_boilerplate</depend>
   <depend>controller_interface</depend>
+  <depend>geometry_msgs</depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

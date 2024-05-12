@@ -38,3 +38,7 @@
     local-name: flex_sync
     uri: https://github.com/daniilidis-group/flex_sync.git
     version: master
+- git:
+    local-name: pid
+    uri: https://github.com/FRC900/pid.git
+    version: velocity_feed_forward

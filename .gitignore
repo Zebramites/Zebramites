@@ -69,3 +69,4 @@ zed-ros-wrapper/
 bagfiles/
 *.bag
 .vscode/
+pid/
