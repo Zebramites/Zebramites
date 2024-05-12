@@ -39,10 +39,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <arg name="cam_yaw"               default="0.0" /> <!-- Orientation respect to base frame (i.e. "base_link) -->
 
     <node pkg="nodelet" type="nodelet" name="nodelets" args="manager" output="screen"/>
-    <node pkg="nodelet" type="nodelet" name="apriltag_detection" args="load frc971_gpu_apriltag/FRC971GpuApriltagNodelet /nodelets" output="screen" >
+    <node pkg="nodelet" type="nodelet" name="apriltag_detection_left" args="load frc971_gpu_apriltag/FRC971GpuApriltagNodelet /nodelets" output="screen" >
         <remap from="image_rect_color" to="/zed2/left/image_rect_color" />
-        <!-- Match tag topic to CPU apriltag detection topic names -->
-        <!-- <remap from="/apriltag_$(arg zed_name)/apriltag_detection/tag_detection_msg" to="/apriltag_$(arg zed_name)/tag_detection_msg"/> -->
+    </node>
+    <node pkg="nodelet" type="nodelet" name="apriltag_detection_right" args="load frc971_gpu_apriltag/FRC971GpuApriltagNodelet /nodelets" output="screen" >
+        <remap from="image_rect_color" to="/zed2/right/image_rect_color" />
     </node>
 
     <include file="$(find zed_wrapper)/launch/include/zed_camera_nodelet.launch">

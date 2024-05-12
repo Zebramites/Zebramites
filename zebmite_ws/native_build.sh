@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ~/minifrc/2023Zebramites/zebmite_ws/
+cd ~/Zebramites/zebmite_ws/
 echo INCOMPLETE > .native_build.status
 
 if [ -z $ROS_ROOT ]; then
