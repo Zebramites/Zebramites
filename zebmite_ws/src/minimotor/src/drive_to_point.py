@@ -18,8 +18,8 @@ class DriveToPoint:
 
         self.goal = None
         
-        self.MINIMUM_OUTPUT = 0.6
-        self.MAXIMUM_OUTPUT = 0.7
+        self.MINIMUM_OUTPUT = 0.55
+        self.MAXIMUM_OUTPUT = 0.65
         self.kP = 2.5
         self.tolerance = 0.02
 
