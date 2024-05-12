@@ -1,0 +1,10 @@
+cam0: # left
+  infotopic: /zed2/left/camera_info
+  rostopic: /gibberish
+  tagtopic: /apriltag_detection_left/tags
+  rig_body: camera
+cam1: # right
+  infotopic: /zed2/right/camera_info
+  rostopic: /gibberish
+  tagtopic: /apriltag_detection_right/tags
+  rig_body: camera
