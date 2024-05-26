@@ -75,7 +75,15 @@ void update(const ros::Time &time, const ros::Duration &period)
     double y = -curr_cmd.linear.y;
     double x = curr_cmd.linear.x;
     double rx = -curr_cmd.angular.z;
+    ROS_INFO_STREAM_THROTTLE(1, "Y " << y << " X " << x  << " Z " << rx);
 
+    fl_wheel_joint_.setCommand(y + x + rx);
+    bl_wheel_joint_.setCommand(y - x + rx);
+    fr_wheel_joint_.setCommand(y - x - rx);
+    br_wheel_joint_.setCommand(y + x - rx);
+
+    return;
+    // stop here
     double angle = atan2(curr_cmd.linear.y, curr_cmd.linear.x);
     angle *= (4 / M_PI);
     angle = round(angle);
@@ -161,10 +169,13 @@ void update(const ros::Time &time, const ros::Duration &period)
     // backRightPower *= sign(backRightPower); //* remap(std::abs(backRightPower), 0, 1, 0.5, 1)
 
     // set wheel velocities
-    fl_wheel_joint_.setCommand(frontLeftPower);
-    fr_wheel_joint_.setCommand(frontRightPower);
-    bl_wheel_joint_.setCommand(backLeftPower);
-    br_wheel_joint_.setCommand(backRightPower);
+    // fl_wheel_joint_.setCommand(frontLeftPower);
+    // fr_wheel_joint_.setCommand(frontRightPower);
+    // bl_wheel_joint_.setCommand(backLeftPower);
+    // br_wheel_joint_.setCommand(backRightPower);
+
+
+
 }
 
 private:
