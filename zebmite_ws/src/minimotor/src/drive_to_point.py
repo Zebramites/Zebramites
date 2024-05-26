@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+# export ROS_MASTER_URI=http://10.32.4.124:5802
 import rospy
 import tf2_ros
 import math
+from tf.transformations import euler_from_quaternion
 
 from geometry_msgs.msg import Twist
 from tf2_geometry_msgs import PoseStamped
@@ -18,9 +20,9 @@ class DriveToPoint:
 
         self.goal = None
         
-        self.MINIMUM_OUTPUT = 0.55
-        self.MAXIMUM_OUTPUT = 0.65
-        self.kP = 2.5
+        self.MINIMUM_OUTPUT = 0.0
+        self.MAXIMUM_OUTPUT = 0.4
+        self.kP = 1.0
         self.tolerance = 0.02
 
     def goal_callback(self, msg: PoseStamped):
@@ -74,12 +76,17 @@ class DriveToPoint:
                 continue
 
             twist = Twist()
-            twist.linear.x = -self.clamp(self.kP * (self.goal.pose.position.x - x))
-            twist.linear.x *= abs(x - self.goal.pose.position.x) > self.tolerance
-            twist.linear.y = self.clamp(self.kP * (self.goal.pose.position.y - y))
-            twist.linear.y *= abs(y - self.goal.pose.position.y) > self.tolerance
-            twist.angular.z = 0.0
-            rospy.loginfo_throttle(1, f"Driving to point: {self.goal.pose.position.x}, {self.goal.pose.position.y} and current position: {x}, {y}, error = {(self.goal.pose.position.x - x)}, {(self.goal.pose.position.y - y)}")
+            x_command = self.kP * (self.goal.pose.position.x - x)
+            # twist.linear.x *= abs(x - self.goal.pose.position.x) > self.tolerance
+            y_command = self.kP * (self.goal.pose.position.y - y)
+            # twist.linear.y *= abs(y - self.goal.pose.position.y) > self.tolerance
+            rotate_angle = math.pi - euler_from_quaternion([current_pos.transform.rotation.x, current_pos.transform.rotation.y, current_pos.transform.rotation.z, current_pos.transform.rotation.w])[2]
+            twist.linear.x = x_command * math.cos(rotate_angle) - y_command * math.sin(rotate_angle)
+            twist.linear.y = x_command * math.sin(rotate_angle) + y_command * math.cos(rotate_angle)
+            twist.angular.z = 0.0 #self.kP * rotate_angle
+            twist.linear.x = -self.clamp(twist.linear.x)
+            twist.linear.y = self.clamp(twist.linear.y)
+            rospy.loginfo_throttle(0.5, f"driving to point: {self.goal.pose.position.x}, {self.goal.pose.position.y}, current position: ({x}, {y}) @ {rotate_angle}, error = {(self.goal.pose.position.x - x)}, {(self.goal.pose.position.y - y)}, cmd_vel = {twist.linear.x}, {twist.linear.y}")
             self.cmd_pub.publish(twist)
             r.sleep()
         twist = Twist()
