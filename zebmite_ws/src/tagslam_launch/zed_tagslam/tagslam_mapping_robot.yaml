@@ -152,18 +152,37 @@ bodies:
              x: 0.00486765
              y: 0.00486513
              z: 0.00417250
+       - id: 19
+         size: 0.05900000
+         pose:
+           position:
+             x: 1.11977918
+             y: -0.04129732
+             z: 0.17432649
+           rotation:
+             x: -1.51291920
+             y: -0.61797744
+             z: -0.56644071
+           position_noise:
+             x: 0.00146442
+             y: 0.00180722
+             z: 0.00225626
+           rotation_noise:
+             x: 0.00251808
+             y: 0.00229496
+             z: 0.00236819
  - minifrc_robot:
      type: simple
      is_static: false
      default_tag_size: 0.059
      tags:
-     - id: 9
+     - id: 5
        size: 0.059
        pose:
          position:
            x: 0.00000000
            y: 0.00000000
-           z: 0.06
+           z: 0.04445
          rotation:
            x: 0.00000000
            y: 0.00000000

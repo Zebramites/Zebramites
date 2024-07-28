@@ -1,0 +1,10 @@
+# goal
+geometry_msgs/PoseStamped pose
+float64 tolerance # defaults to 0.02
+---
+# result
+bool success
+---
+# feedback
+float64 x_error # not absolute value
+float64 y_error # not absolute value
