@@ -4,9 +4,9 @@
 
   <arg name="use_rviz" default="false" />
    
-  <include file="$(find minifrc_arm_moveit_config)/launch/demo.launch">
+  <!-- <include file="$(find minifrc_arm_moveit_config)/launch/demo.launch">
     <arg name="use_rviz" value="$(arg use_rviz)"/>
-  </include>
+  </include> -->
 
    <!-- GDB functionality -->
   <arg name="debug" default="false" />
@@ -32,16 +32,16 @@
     <!-- Convert joint states to /tf tranforms -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
-    <node name="joy_node" pkg="joy" type="joy_node">
+    <!-- <node name="joy_node" pkg="joy" type="joy_node">
       <param name="dev" value="/dev/input/js0"/>
     </node>
 
     <node name="joy_node_operator" pkg="joy" type="joy_node">
       <remap from="joy" to="joy_operator"/>
       <param name="dev" value="/dev/input/js1"/>
-    </node>
+    </node> -->
 
-    <node name="teleop_node" pkg="minimotor" type="teleop_node.py"/>
+    <!-- <node name="teleop_node" pkg="minimotor" type="teleop_node.py"/> -->
 
     <node name="drive_to_point" pkg="minimotor" type="drive_to_point.py"/>
 

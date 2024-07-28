@@ -1,2 +1,2 @@
-Launch `minimotor/launch/minibot_hardware.launch` for all things that move
-Launch `minivision/launch/zed_realtime.launch` on the laptop with a ZED
+Launch `minimotor/launch/minibot_hardware.launch` and `minivision/launch/zed_realtime.launch` on the laptop with a ZED and a Bluetooth connection to the robot
+Launch `minimotor/launch/minibot_laptop.launch` for the computer with joystick attached
