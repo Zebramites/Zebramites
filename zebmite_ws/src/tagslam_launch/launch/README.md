@@ -1,0 +1,1 @@
+All of the launch files in this directory *just* launch TagSLAM. You'll need to run a camera separately; the realtime ZED launch file that launches ZED + TagSLAM is in minivision/launch/zed_realtime.launch.

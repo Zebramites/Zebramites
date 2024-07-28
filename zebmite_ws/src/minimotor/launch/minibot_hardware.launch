@@ -43,6 +43,8 @@
 
     <node name="teleop_node" pkg="minimotor" type="teleop_node.py"/>
 
+    <node name="drive_to_point" pkg="minimotor" type="drive_to_point.py"/>
+
   </group>
 
 </launch>
