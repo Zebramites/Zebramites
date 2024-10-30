@@ -141,6 +141,7 @@ namespace minibot_control
     return new MiniBotJoint(t);
   }
 
+
   MiniBotHWInterface::MiniBotHWInterface(ros::NodeHandle& nh, urdf::Model* urdf_model)
     : ros_control_boilerplate::GenericHWInterface(nh, urdf_model)
   {
@@ -150,15 +151,31 @@ namespace minibot_control
 
     std::size_t error = 0;
     std::string serial_port;
-    error += !rosparam_shortcuts::get("hardware_interface", hwnh, "port", serial_port);
+    error += !rosparam_shortcuts::get("hardware_interface", hwnh, "write_proto", write_proto);
+    // ===== BT serial START =====
+    if (write_proto == 0) {
+      ROS_WARN_STREAM("Using bluetooth serial");
+      error += !rosparam_shortcuts::get("hardware_interface", hwnh, "port", serial_port);
+      p = new boost::asio::serial_port(ios, serial_port);
 
-    p = new boost::asio::serial_port(ios, serial_port);
-
-    try {
-      p->set_option(boost::asio::serial_port_base::baud_rate(921600));
-    } catch (boost::system::system_error::exception e) {
-      ROS_ERROR_STREAM("error setting serial port baud rate");
+      try {
+        p->set_option(boost::asio::serial_port_base::baud_rate(921600));
+      } catch (boost::system::system_error::exception e) {
+        ROS_ERROR_STREAM("error setting serial port baud rate");
+      }
+    } 
+    // ===== BT serial END =====
+    // ===== Websockets START ===== 
+    else if (write_proto == 1) {
+      ROS_WARN_STREAM("Using websockets");
+    } 
+    // ===== Websockets END =====
+    else {
+      ROS_ERROR_STREAM("Exiting: Invalid write_proto value " << write_proto);
+      exit(1);
     }
+
+
     ROS_INFO_NAMED("minibot_hw_interface", "MiniBotHWInterface Ready.");
     for (std::string n : joint_names_) {
       std::shared_ptr<MiniBotJoint> jp = std::shared_ptr<MiniBotJoint>(parseJoint(nh, n));
@@ -215,7 +232,8 @@ namespace minibot_control
       }
     }
 
-    ROS_INFO_STREAM("Sending command " << command); // TODO replace with actual write
+    ROS_INFO_STREAM_THROTTLE(1, "Sending command " << command); // TODO replace with actual write
+  
     p->write_some(boost::asio::buffer(command));
 
   }

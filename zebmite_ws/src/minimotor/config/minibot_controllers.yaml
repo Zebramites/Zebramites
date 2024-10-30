@@ -7,22 +7,20 @@ generic_hw_control_loop:
 # Settings for ros_control hardware interface
 hardware_interface:
    joints:
-      - base_arm
-      - second_stage_arm
-      - fr_drive
-      - fl_drive
-      - br_drive
-      - bl_drive
-      - intake
-      - auto_motor
+      - test_servo
    sim_control_mode: 0 # 0: position, 1: velocity
+   write_proto: 1 # 0 for bluetooth serial, 1 for websockets (nou2 vs 3)  
    port: /dev/rfcomm0
+   nou3_ip: 192.168.4.1 # we are the client, nou3 acts as AP we connect to
+   ws_port: 9000 # websockets port
+
 
 # Publish all joint states ----------------------------------
 # Creates the /joint_states topic necessary in ROS
 joint_state_controller:
    type:         joint_state_controller/JointStateController
    publish_rate: 50
+
 
 fr_drive:
    type: motor
@@ -81,6 +79,14 @@ second_stage_arm:
    offset: 2.62 # 65 deg
    scale: 1.667
    initial_position: -2.19
+
+test_servo:
+   type: servo
+   port: 1
+   inverted: false
+   offset: 1.57 # 90 deg
+   scale: 1.0
+   initial_position: -0.94
 
 # Individual Position Controllers ---------------------------------------
 # Allows to send individual ROS msg of Float64 to each joint separately

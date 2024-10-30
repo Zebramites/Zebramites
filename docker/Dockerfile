@@ -241,20 +241,4 @@ RUN export DONT_PROMPT_WSL_INSTALL=1 &&\
     code --install-extension ms-python.python &&\
     code --install-extension ms-python.vscode-pylance
 
-USER root
-RUN cd /home/ubuntu/ &&\
-    su ubuntu -c "git clone https://github.com/mjansen4857/pathplanner" &&\
-    su ubuntu -c "wget https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.10.0-stable.tar.xz" # find some way to always install the latest Flutter version ideally &&\
-    su ubuntu -c "tar xf flutter_linux_3.10.0-stable.tar.xz" &&\
-    rm -f /home/ubuntu/flutter_linux_3.10.0-stable.tar.xz &&\
-    cd /home/ubuntu/pathplanner &&\
-    apt update &&\
-    apt install libstdc++-12-dev libgtk-3-dev -y &&\
-    rm -rf /var/lib/apt/lists/* &&\
-    apt clean &&\
-    ln -s /usr/bin/clang-15 /usr/bin/clang &&\
-    ln -s "/usr/bin/clang++-15" "/usr/bin/clang++" &&\
-    su ubuntu -c "/home/ubuntu/flutter/bin/flutter build linux" &&\
-    ln -s /home/ubuntu/pathplanner/build/linux/x64/release/bundle/pathplanner /usr/local/bin/pathplanner
-
 USER ubuntu

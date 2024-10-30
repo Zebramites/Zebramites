@@ -109,6 +109,8 @@ public:
 protected:
   std::map<std::string, std::shared_ptr<MiniBotJoint>> joints_;
   serial_port *p;
+  int write_proto;
+  // fill in stuff for ws comms
 };  // class
 
 }  // namespace minibot_control
