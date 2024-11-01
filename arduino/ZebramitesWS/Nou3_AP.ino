@@ -6,7 +6,7 @@
 const char* ssid = "254hotspot";    // SSID for the AP
 const char* password = "poofpoof";  // Password for the AP
 
-WebSocketsServer webSocket = WebSocketsServer(9000); // WebSocket server on port 81
+WebSocketsServer webSocket = WebSocketsServer(9000); 
 NoU_Servo testServo(1);
 int MAX_MOTORS = 8;
 
@@ -44,7 +44,10 @@ void loop() {
 
 // Handle WebSocket events
 void webSocketEvent(uint8_t clientNum, WStype_t type, uint8_t *payload, size_t length) {
-  Serial.println("Recived websocket message");
+  if (length < 1) {
+    Serial.println("Len < 1");
+    return;
+  }
   switch(type) {
     case WStype_DISCONNECTED:
       Serial.printf("Client %u disconnected\n", clientNum);
@@ -54,10 +57,16 @@ void webSocketEvent(uint8_t clientNum, WStype_t type, uint8_t *payload, size_t l
       Serial.printf("Client %u connected from %s\n", clientNum, ip.toString().c_str());
       break;
     }
-    case WStype_TEXT:
-      Serial.printf("Received text from client %u: %s\n", clientNum, payload);
+    case WStype_TEXT: { 
+      Serial.print("Received text from client ");
+      Serial.println((const char*)payload);
+
       // Send response back to client
       parseMessage((char*)payload, clientNum);
+      break;
+    }
+    case WStype_PONG:
+      Serial.println("Recived pong");
       break;
   }
 }
@@ -66,6 +75,10 @@ void parseMessage(char* message, uint8_t clientNum) {
   String msg = String(message);
   Serial.print("Command recived: ");
   Serial.println(msg);
+  if (msg == "ping") {
+    webSocket.sendTXT(clientNum, "Pong");
+    return;
+  }
   // Split commands by semicolons
   int startIndex = 0;
   while (startIndex < msg.length()) {
@@ -90,8 +103,8 @@ void parseMessage(char* message, uint8_t clientNum) {
 
     switch (commandType) {
       case 'm':
-        if (index >= 1 && index <= MAX_MOTORS) { // Assuming MAX_MOTORS is defined
-          // motors[index - 1]->set(value); // Set motor command
+        if (index >= 1 && index <= MAX_MOTORS) { 
+          // motors[index - 1]->set(value); // Set motor command eventually
           Serial.printf("Motor %d set to: %f\n", index, value);
           webSocket.sendTXT(clientNum, "Motor command received.");
         } else {
@@ -99,8 +112,8 @@ void parseMessage(char* message, uint8_t clientNum) {
         }
         break;
       case 's':
-        if (index >= 1 && index <= 180) { // Adjust the range according to your servo setup
-          testServo.write((int)value); // Set the servo angle
+        if (index >= 1 && index <= 180) { 
+          testServo.write((int)value);
           Serial.printf("Servo %d set to: %d degrees\n", index, (int)value);
           webSocket.sendTXT(clientNum, "Servo command received.");
         } else {

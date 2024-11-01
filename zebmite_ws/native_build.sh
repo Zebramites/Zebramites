@@ -8,6 +8,10 @@ if [ -z $ROS_ROOT ]; then
 	if [ ! -z devel/setup.bash ]; then
 		source devel/setup.bash
 	fi
+	PYTHONPATH=$PYTHONPATH:/opt/ros/noetic/lib/python3.10/dist-packages
+	PYTHONPATH=$PYTHONPATH:/opt/ros/noetic/lib/python3.10/site-packages
+	PYTHONPATH=$PYTHONPATH:/opt/ros/noetic/local/lib/python3.10/dist-packages
+	PYTHONPATH=$PYTHONPATH:/opt/ros/noetic/local/lib/python3.10/site-packages
 elif [[ ! $ROS_ROOT = "/opt/ros/noetic/share/ros" ]]; then
 	echo -e "\e[1m\e[31mROS is not configured for a native build (maybe set up for a cross build instead?)\e[0m"
 	echo -e "\e[1m\e[31mRun ./native_build.sh in a new terminal window\e[0m"
@@ -20,29 +24,17 @@ EXTRA_CMD_LINE=""
 uname -a | grep -q x86_64
 if [ $? -eq 1 ]; then
 	EXTRA_SKIPLIST_PACKAGES="
-		adi_driver \
-		adi_pico_driver \
 		as726x_controllers \
-		cancoder_controller \
 		canifier_controller \
-		cuda_apriltag_ros \
 		demo_tf_node \
-		navx_publishe \
+		field \
+		frcrobot_description \
+		frcrobot_gazebo \
+		gazebo_frcrobot_control \
 		robot_characterization \
 		robot_visualizer \
 		rosbag_scripts \
 		rospy_message_converter \
-		rosserial_arduino \
-		rosserial_chibios \
-		rosserial_embeddedlinux \
-		rosserial_mbed \
-		rosserial_server \
-		rosserial_test \
-		rosserial_tivac \
-		rosserial_vex_cortex \
-		rosserial_vex_v5 \
-		rosserial_windows \
-		rosserial_xbee \
 		rqt_driver_station_sim \
 		stage_ros \
 		template_controller \
@@ -52,28 +44,61 @@ if [ $? -eq 1 ]; then
 fi
 
 catkin config --skiplist \
+    moveit_ros_robot_interaction \
+    moveit_ros_benchmarks \
+    moveit_ros_manipulation \
+	moveit_chomp_optimizer_adapter \
+    moveit_planners_chomp \
+    chomp_motion_planner \
 	ackermann_steering_controller \
+	adi_driver \
+	adi_pico_driver \
 	ar_track_alvar \
 	color_spin \
+	controllers_2019 \
+	controllers_2019_msgs \
 	controllers_2020 \
 	controllers_2020_msgs \
+	controllers_2022 \
+	controllers_2022_msgs \
+	deeptag_ros \
 	diff_drive_controller \
 	effort_controllers \
 	force_torque_sensor_controller \
 	four_wheel_steering_controller \
 	goal_detection \
 	gripper_action_controller \
+	navx_publisher \
 	robot_characterization \
-	rqt_joint_trajectory_controller \
 	realsense2_camera \
 	realsense2_description \
 	robot_visualizer \
+	rosserial_arduino \
+	rosserial_chibios \
+	rosserial_embeddedlinux \
+	rosserial_mbed \
+	rosserial_server \
+	rosserial_test \
+	rosserial_tivac \
+	rosserial_vex_cortex \
+	rosserial_vex_v5 \
+	rosserial_windows \
+	rosserial_xbee \
+	spinnaker_camera_driver \
+	teraranger_array \
+	teraranger_array_converter \
 	turing_smart_screen \
 	velocity_controllers \
 	zed_ros \
+	wpilib_swerve_odom \
 	$EXTRA_SKIPLIST_PACKAGES
 
-catkin build -DCATKIN_ENABLE_TESTING=OFF -DBUILD_WITH_OPENMP=ON -DCMAKE_CXX_STANDARD=17 -DSETUPTOOLS_DEB_LAYOUT=OFF  $EXTRA_CMD_LINE "$@"
+export PYTHONPATH=$PYTHONPATH:/opt/ros/noetic/lib/python3.10/dist-packages
+export PYTHONPATH=$PYTHONPATH:/opt/ros/noetic/lib/python3.10/site-packages
+export PYTHONPATH=$PYTHONPATH:/opt/ros/noetic/local/lib/python3.10/dist-packages
+export PYTHONPATH=$PYTHONPATH:/opt/ros/noetic/local/lib/python3.10/site-packages
+
+catkin build -DCATKIN_ENABLE_TESTING=OFF -DBUILD_WITH_OPENMP=ON -DCMAKE_CXX_STANDARD=17 -DSETUPTOOLS_DEB_LAYOUT=OFF -DCMAKE_CXX_FLAGS="-DBOOST_BIND_GLOBAL_PLACEHOLDERS -Wno-psabi -DNON_POLLING" $EXTRA_CMD_LINE "$@"
 
 if [ $? -ne 0 ] ; then
 	echo FAIL > .native_build.status

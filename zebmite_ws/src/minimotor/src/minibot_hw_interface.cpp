@@ -90,11 +90,13 @@ namespace minibot_control
   }
 
   JointType getType(std::string s) {
+    ROS_INFO_STREAM("MOTOR TYPE " << s);
     if (s == "motor") {
       return motor;
     } else if (s == "servo") {
       return servo;
     } else {
+      ROS_WARN_STREAM("DEFAULTING TO MOTOR TYPE");
       return motor;
     }
   }
@@ -152,6 +154,7 @@ namespace minibot_control
     std::size_t error = 0;
     std::string serial_port;
     error += !rosparam_shortcuts::get("hardware_interface", hwnh, "write_proto", write_proto);
+    error += !rosparam_shortcuts::get("hardware_interface", hwnh, "websocket_logging_level", log_ws_);
     // ===== BT serial START =====
     if (write_proto == 0) {
       ROS_WARN_STREAM("Using bluetooth serial");
@@ -168,6 +171,9 @@ namespace minibot_control
     // ===== Websockets START ===== 
     else if (write_proto == 1) {
       ROS_WARN_STREAM("Using websockets");
+      use_websocket_ = true;
+      error += !rosparam_shortcuts::get("hardware_interface", hwnh, "websocket_uri", ws_uri_);
+      ws_thread_ = std::thread(&MiniBotHWInterface::websocketConnect, this, ws_uri_);
     } 
     // ===== Websockets END =====
     else {
@@ -175,12 +181,13 @@ namespace minibot_control
       exit(1);
     }
 
-
-    ROS_INFO_NAMED("minibot_hw_interface", "MiniBotHWInterface Ready.");
+    rosparam_shortcuts::shutdownIfError("MiniBotHWInterface", error);
     for (std::string n : joint_names_) {
       std::shared_ptr<MiniBotJoint> jp = std::shared_ptr<MiniBotJoint>(parseJoint(nh, n));
       joints_[n] = jp;
     }
+    ROS_INFO_NAMED("minibot_hw_interface", "MiniBotHWInterface Ready.");
+
     // ROS_INFO_STREAM("Parsed " << joints_.size() << " joints");
     // for (std::size_t joint_id = 0; joint_id < joints_.size(); ++joint_id) {
     //   auto thisJoint = joints_[joint_names_[joint_id]];
@@ -208,11 +215,81 @@ namespace minibot_control
     
   }
 
+  void MiniBotHWInterface::setupWebsocketLogging() {
+    using namespace websocketpp::log;
+    
+    if (!log_ws_) {
+      ws_client_.clear_access_channels(alevel::all);
+      ws_client_.set_access_channels(alevel::connect | alevel::disconnect);
+    }
+
+    ROS_INFO_STREAM("Set logging channels for WS");
+  }
+
+  void MiniBotHWInterface::websocketConnect(const std::string& uri) {
+      setupWebsocketLogging();
+      ws_client_.init_asio();
+      ws_client_.set_open_handler(std::bind(&MiniBotHWInterface::on_open, this, std::placeholders::_1));
+      ws_client_.set_message_handler(std::bind(&MiniBotHWInterface::on_message, this, std::placeholders::_1, std::placeholders::_2));
+      ws_client_.set_close_handler(std::bind(&MiniBotHWInterface::on_close, this, std::placeholders::_1));
+      
+      websocketpp::lib::error_code ec;
+      ROS_INFO_STREAM("URI IS " << uri);
+      WebSocketClient::connection_ptr con = ws_client_.get_connection(uri, ec);
+      if (ec) {
+        ROS_ERROR_STREAM("WebSocket Error: " << ec.message());
+        return;
+      }
+      
+      ws_client_.connect(con);
+      ws_client_.run();
+  }
+
+  void MiniBotHWInterface::on_open(websocketpp::connection_hdl hdl) {
+      ws_hdl_ = hdl;
+      ws_connected_ = true;
+      ROS_INFO_STREAM("WebSocket connection opened.");
+      const std::string inital_cmd = "ping"; 
+      ws_client_.send(ws_hdl_, inital_cmd, websocketpp::frame::opcode::text);
+  }
+
+  void MiniBotHWInterface::on_message(websocketpp::connection_hdl hdl, WebSocketClient::message_ptr msg) {
+      ROS_INFO_STREAM("Received message: " << msg->get_payload());
+  }
+
+  void MiniBotHWInterface::reconnectWebSocket(const std::string& uri) {
+    while (!ws_connected_ && ros::ok()) { // Loop until reconnected or ROS shuts down
+      websocketpp::lib::error_code ec;
+      WebSocketClient::connection_ptr con = ws_client_.get_connection(uri, ec);
+      if (ec) {
+        ROS_ERROR_STREAM("WebSocket Reconnection Error: " << ec.message());
+      } 
+      else {
+        ws_client_.connect(con);
+        ws_client_.run();  // This will block until a connection is open or fails
+      }
+
+      if (!ws_connected_) {
+        ROS_WARN_STREAM("WebSocket reconnect attempt failed, retrying in 2 seconds...");
+        std::this_thread::sleep_for(std::chrono::seconds(2)); // Wait before retrying
+      }
+    }
+  }
+
+  void MiniBotHWInterface::on_close(websocketpp::connection_hdl hdl) {
+    ws_connected_ = false;
+    ROS_ERROR_STREAM("WebSocket connection closed. Attempting to reconnect...");
+    //reconnectWebSocket(ws_uri_);
+  }
+
   void MiniBotHWInterface::write(ros::Duration& elapsed_time)
   {
+    //ROS_INFO_STREAM("Ran write function"); 
     // Safety
     enforceLimits(elapsed_time);
 
+    std::lock_guard<std::mutex> lock(command_mutex_);
+    //ROS_INFO_STREAM("Mutex locked");
     // Write to serial for each joint
     std::string command;
     for (std::size_t joint_id = 0; joint_id < num_joints_; ++joint_id) {
@@ -231,10 +308,26 @@ namespace minibot_control
         joint_position_[joint_id] = joint_position_command_[joint_id];
       }
     }
+    if(command.find_first_not_of(' ') != std::string::npos) {
+      ROS_INFO_STREAM("Sending command " << command << ")"); // TODO replace with actual write
+    }
+    else {
+      return;
+    }
 
-    ROS_INFO_STREAM_THROTTLE(1, "Sending command " << command); // TODO replace with actual write
-  
-    p->write_some(boost::asio::buffer(command));
+    if (use_websocket_) {
+      if (!ws_connected_) {
+        ROS_ERROR_STREAM_THROTTLE(2, "Websocket not connected");
+      }
+      // connected and using websockets
+      else {
+        ws_client_.send(ws_hdl_, command, websocketpp::frame::opcode::text);
+      }
+    }  
+    else if (write_proto == 0) {
+      ROS_WARN_STREAM_THROTTLE(2, "Using BT serial");
+      p->write_some(boost::asio::buffer(command));
+    }
 
   }
 

@@ -8,12 +8,15 @@ generic_hw_control_loop:
 hardware_interface:
    joints:
       - test_servo
+      - fr_drive
+      - fl_drive
+      - bl_drive
+      - br_drive
    sim_control_mode: 0 # 0: position, 1: velocity
    write_proto: 1 # 0 for bluetooth serial, 1 for websockets (nou2 vs 3)  
    port: /dev/rfcomm0
-   nou3_ip: 192.168.4.1 # we are the client, nou3 acts as AP we connect to
-   ws_port: 9000 # websockets port
-
+   websocket_uri: ws://192.168.4.1:9000
+   websocket_logging_level: true # true is on, false off 
 
 # Publish all joint states ----------------------------------
 # Creates the /joint_states topic necessary in ROS
@@ -84,19 +87,17 @@ test_servo:
    type: servo
    port: 1
    inverted: false
-   offset: 1.57 # 90 deg
+   offset: 0.0
    scale: 1.0
-   initial_position: -0.94
+   initial_position: 0.0
 
 # Individual Position Controllers ---------------------------------------
 # Allows to send individual ROS msg of Float64 to each joint separately
 
 # joint trajectory controller for arm
-minifrc_arm_joint_position_controller:
-  type: position_controllers/JointTrajectoryController
-  joints:
-    - base_arm
-    - second_stage_arm
+test_servo_controller:
+  type: position_controllers/JointPositionController
+  joint: test_servo
 
 intake_controller:
   type: velocity_controllers/JointVelocityController
@@ -113,3 +114,5 @@ mecanum_drive_controller:
 initial:
    - group: armplangroup
      pose: rest
+
+   

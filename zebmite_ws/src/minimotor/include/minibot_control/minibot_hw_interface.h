@@ -44,6 +44,14 @@
 #include <ros/ros.h>
 #include <std_msgs/Float64.h>
 #include <boost/asio/serial_port.hpp>
+#include <websocketpp/config/asio_no_tls_client.hpp>
+#include <websocketpp/client.hpp>
+#include <thread>
+#include <string>
+#include <mutex>
+
+typedef websocketpp::client<websocketpp::config::asio_client> WebSocketClient;
+
 using namespace::boost::asio;
 
 namespace minibot_control
@@ -106,10 +114,26 @@ public:
   /** \brief Enforce limits for all values before writing */
   virtual void enforceLimits(ros::Duration& period);
 
+private: 
+  void websocketConnect(const std::string& uri);
+  void on_open(websocketpp::connection_hdl hdl);
+  void on_message(websocketpp::connection_hdl hdl, WebSocketClient::message_ptr msg);
+  void on_close(websocketpp::connection_hdl hdl);
+  void reconnectWebSocket(const std::string& uri);
+  void setupWebsocketLogging();
+
 protected:
   std::map<std::string, std::shared_ptr<MiniBotJoint>> joints_;
   serial_port *p;
   int write_proto;
+  WebSocketClient ws_client_;
+  websocketpp::connection_hdl ws_hdl_;
+  std::mutex command_mutex_;
+  std::thread ws_thread_;
+  std::string ws_uri_;
+  bool use_websocket_ = false;
+  bool ws_connected_ = false;
+  bool log_ws_ = true;
   // fill in stuff for ws comms
 };  // class
 

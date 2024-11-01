@@ -8,8 +8,8 @@ set -o pipefail
 
 docker run "$@" -it --gpus all --net=host -v  /tmp/.X11-unix:/tmp/.X11-unix \
  -v /dev:/dev --privileged \
- -v $HOME/2023RobotCode:/home/ubuntu/.2023RobotCode.readonly \
+ -v $HOME/900RobotCode:/home/ubuntu/.900RobotCode.readonly \
  -v $HOME/Zebramites:/home/ubuntu/Zebramites \
  --ipc=host \
  --shm-size=8G \
- -e DISPLAY=$DISPLAY -e NVIDIA_DRIVER_CAPABILITIES=all --user ubuntu frc900/zebros-2024-dev:latest /bin/bash
+ -e DISPLAY=$DISPLAY -e NVIDIA_DRIVER_CAPABILITIES=all --user ubuntu frc900/zebros-2025-dev:latest /bin/bash

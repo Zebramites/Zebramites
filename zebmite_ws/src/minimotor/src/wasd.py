@@ -16,7 +16,7 @@ def talker():
         pub.publish(msg)
     msg.linear.x = 0
     pub.publish(msg)
-
+    
 if __name__ == '__main__':
     try:
         talker()

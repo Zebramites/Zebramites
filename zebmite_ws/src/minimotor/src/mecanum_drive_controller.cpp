@@ -75,7 +75,7 @@ void update(const ros::Time &time, const ros::Duration &period)
     double y = -curr_cmd.linear.y;
     double x = curr_cmd.linear.x;
     double rx = -curr_cmd.angular.z;
-    ROS_INFO_STREAM_THROTTLE(1, "Y " << y << " X " << x  << " Z " << rx);
+    ROS_INFO_STREAM_THROTTLE(5, "Y " << y << " X " << x  << " Z " << rx);
 
     fl_wheel_joint_.setCommand(y + x + rx);
     bl_wheel_joint_.setCommand(y - x + rx);
