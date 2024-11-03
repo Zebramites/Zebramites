@@ -1,7 +1,20 @@
 #include <WiFi.h>
 #include <esp_wifi.h>  
-#include <WebSocketsServer_Generic.h>
+#include <WebSocketsServer_Generic.h> // WebSockets_Generic
 #include <Alfredo_NoU3.h>
+
+// from 9DOF_IMU_Robot.ino
+int interruptPinLSM6 = 48;
+int interruptPinMMC5 = 47;
+
+float acceleration_x, acceleration_y, acceleration_z;
+float gyroscope_x, gyroscope_y, gyroscope_z;
+float magnetometer_x, magnetometer_y, magnetometer_z;
+
+volatile bool newDataAvailableLSM6 = true;
+volatile bool newDataAvailableMMC5 = true;
+volatile unsigned long long lastLSM6 = 0;
+// end imu code
 
 const char* ssid = "254hotspot";    // SSID for the AP
 const char* password = "poofpoof";  // Password for the AP
@@ -60,13 +73,68 @@ void setup(){
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
   Serial.println("WebSocket server started");
+
+  // from 9DOF_IMU_Robot.ino
+  // Initialize LSM6
+  if (LSM6.begin(Wire1) == false) {
+    Serial.println("LSM6 did not respond - check your wiring.");
+  }
+  pinMode(interruptPinLSM6, INPUT);
+  attachInterrupt(digitalPinToInterrupt(interruptPinLSM6), interruptRoutineLSM6, RISING);
+  LSM6.enableInterrupt();
+
+  // Initialize MMC5
+  if (MMC5.begin(Wire1) == false) {
+    Serial.println("MMC5983MA did not respond - check your wiring.");
+  }
+  MMC5.softReset();
+  MMC5.setFilterBandwidth(800);
+  MMC5.setContinuousModeFrequency(100);
+  MMC5.enableAutomaticSetReset();
+  MMC5.enableContinuousMode();
+  pinMode(interruptPinMMC5, INPUT);
+  attachInterrupt(digitalPinToInterrupt(interruptPinMMC5), interruptRoutineMMC5, RISING);
+  MMC5.enableInterrupt();
+  // end imu code
 }
 
 void loop() {
+  // from 9DOF_IMU_Robot.ino
+  // Check LSM6 for new data
+  if (newDataAvailableLSM6) {
+    newDataAvailableLSM6 = false;
+
+    if (LSM6.accelerationAvailable()) {
+      LSM6.readAcceleration(&acceleration_x, &acceleration_y, &acceleration_z); // g's
+    }
+
+    if (LSM6.gyroscopeAvailable()) {
+      LSM6.readGyroscope(&gyroscope_x, &gyroscope_y, &gyroscope_z); // deg/s
+    }
+    // Serial.printf("%f %f %f\n", gyroscope_x, gyroscope_y, gyroscope_z);
+  }
+
+  // Check MMC5983MA for new data
+  if (newDataAvailableMMC5) {
+    newDataAvailableMMC5 = false;
+    MMC5.clearMeasDoneInterrupt();
+
+    MMC5.readAccelerometer(&magnetometer_x, &magnetometer_y, &magnetometer_z);  // Results in µT (microteslas).
+  }
+  // end imu code
+
   webSocket.loop(); // Handle WebSocket events
   delay(1);
 }
 
+void interruptRoutineLSM6() {
+  newDataAvailableLSM6 = true;
+  lastLSM6 = micros();
+}
+
+void interruptRoutineMMC5() {
+  newDataAvailableMMC5 = true;
+}
 
 // Handle WebSocket events
 void webSocketEvent(uint8_t clientNum, WStype_t type, uint8_t *payload, size_t length) {
@@ -100,7 +168,30 @@ void parseMessage(char* message, uint8_t clientNum) {
   if (msg == "voltage?") {
     //Serial.print("Sent voltage of ");
     //Serial.println(NoU3.getBatteryVoltage());
+    // char type[4] = "vol";
+    // float data_values[2];
+    // data_values[0] = *(float*)type;
+    // data_values[1] = NoU3.getBatteryVoltage();
+    // webSocket.sendBIN(clientNum, (uint8_t*)data_values, 2*sizeof(float));
     webSocket.sendTXT(clientNum, "v;" + String(NoU3.getBatteryVoltage()) + ";");
+    return;
+  }
+  if (msg == "imu?") {
+    // float data_values[10]; // ax ay az gx gy gz mx my mz
+    // char type[4] = "imu";
+    // data_values[0] = *(float*)type;
+    // data_values[1] = acceleration_x;
+    // data_values[2] = acceleration_y;
+    // data_values[3] = acceleration_z;
+    // data_values[4] = gyroscope_x;
+    // data_values[5] = gyroscope_y;
+    // data_values[6] = gyroscope_z;
+    // data_values[7] = magnetometer_x;
+    // data_values[8] = magnetometer_y;
+    // data_values[9] = magnetometer_z;
+    // webSocket.sendBIN(clientNum, (uint8_t*)data_values, 10*sizeof(float));
+    webSocket.sendTXT(clientNum, "imut;" + String(lastLSM6) + ";ax;" + String(acceleration_x) + ";ay;" + String(acceleration_y) + ";az;" + String(acceleration_z) + ";vx;" + String(gyroscope_x) + ";vy;" + String(gyroscope_y) + ";vz;" + String(gyroscope_z) + ";mx;" + String(magnetometer_x) + ";my;" + String(magnetometer_y) + ";mz;" + String(magnetometer_z) + ";");
+    // Serial.println("imut;" + String(lastLSM6) + ";ax;" + String(acceleration_x) + ";ay;" + String(acceleration_y) + ";az;" + String(acceleration_z) + ";vx;" + String(gyroscope_x) + ";vy;" + String(gyroscope_y) + ";vz;" + String(gyroscope_z) + ";mx;" + String(magnetometer_x) + ";my;" + String(magnetometer_y) + ";mz;" + String(magnetometer_z) + ";\n");
     return;
   }
   if (msg == "ping") {

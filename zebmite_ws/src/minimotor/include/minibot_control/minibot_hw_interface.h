@@ -51,6 +51,7 @@
 #include <mutex>
 #include <realtime_tools/realtime_publisher.h>
 #include <std_msgs/Float64.h>
+#include <sensor_msgs/Imu.h>
 
 
 typedef websocketpp::client<websocketpp::config::asio_client> WebSocketClient;
@@ -138,6 +139,7 @@ protected:
   bool ws_connected_ = false;
   bool log_ws_ = true;
   std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64>> voltage_pub_;
+  std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::Imu>> imu_pub_;
   
 };  // class
 

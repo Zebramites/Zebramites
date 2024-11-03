@@ -153,6 +153,7 @@ namespace minibot_control
 
     ros::NodeHandle hwnh(nh, "hardware_interface");
     voltage_pub_ = std::make_shared<realtime_tools::RealtimePublisher<std_msgs::Float64>>(hwnh, "voltage", 100);
+    imu_pub_ = std::make_shared<realtime_tools::RealtimePublisher<sensor_msgs::Imu>>(hwnh, "imu_unfiltered", 100);
 
     std::size_t error = 0;
     std::string serial_port;
@@ -195,7 +196,10 @@ namespace minibot_control
   void MiniBotHWInterface::read(ros::Duration& elapsed_time)
   {
     if (use_websocket_ && ws_connected_) {
+      // ROS_INFO_STREAM("Querying voltage");
       ws_client_.send(ws_hdl_, "voltage?", websocketpp::frame::opcode::text);
+      // ROS_INFO_STREAM("Querying IMU");
+      ws_client_.send(ws_hdl_, "imu?", websocketpp::frame::opcode::text);
     }
   }
 
@@ -239,21 +243,69 @@ namespace minibot_control
 
   void MiniBotHWInterface::on_message(websocketpp::connection_hdl hdl, WebSocketClient::message_ptr msg) {
       const std::string msg_str = msg->get_payload();
-      // want to match "v;4.82;" and publish 4.82 
-      // Define the regex pattern for "v;<float>;"
-      const std::regex pattern(R"(v;([-+]?[0-9]*\.?[0-9]+);)");
-      std::smatch match;
-      if (std::regex_search(msg_str, match, pattern) && match.size() > 1) {
-          float value = std::stof(match[1].str());
-          if (voltage_pub_ && voltage_pub_->trylock()) {
-              voltage_pub_->msg_.data = value;
-              voltage_pub_->unlockAndPublish();
-          }
-          return;
-      }
-      ROS_INFO_STREAM("Received message: " << msg_str);
-  }
+      // data is published as a string of {field};{value};
+      const std::regex pattern("([a-z]+);([\\d.]+);");
 
+      // ROS_INFO_STREAM("Received message: " << msg_str);
+
+      // modified from https://stackoverflow.com/a/35026140
+      std::smatch match;
+      std::string::const_iterator search_start(msg_str.cbegin());
+      bool voltage_found = false;
+      bool imu_found = false;
+      sensor_msgs::Imu imu_msg;
+      while (std::regex_search(search_start, msg_str.cend(), match, pattern))
+      {
+        // ROS_INFO_STREAM("Found a regex match of size " << match.size() << " with first entry " << match[0].str() << " " << match[1].str() << " " << match[2].str());
+        if (match.size() == 3) {
+          std::string type = match[1].str();
+          float value = std::stof(match[2].str());
+          if (type == "v") {
+            voltage_pub_->msg_.data = value;
+            voltage_found = true;
+          } else if (type == "imut") {
+            // assuming ax always is included first with IMU data
+            imu_found = true;
+            float time_value = std::stoull(match[2].str());
+            imu_msg.header.stamp = ros::Time(time_value / 1000000.0d); // this is not the real ROS timestamp, it's the ESP32's time since boot
+            // so we can integrate velocity correctly
+            imu_msg.header.frame_id = "base_link";
+          } else if (type == "ax") {
+            // reported value is in g's, we need to convert to m/s^2
+            imu_msg.linear_acceleration.x = value * 9.80665;
+          } else if (type == "ay") {
+            // reported value is in g's, we need to convert to m/s^2
+            imu_msg.linear_acceleration.y = value * 9.80665;
+          } else if (type == "az") {
+            // reported value is in g's, we need to convert to m/s^2
+            imu_msg.linear_acceleration.z = value * 9.80665;
+          } else if (type == "vx") {
+            // reported value is in deg/s, we need to convert to rad/s
+            imu_msg.angular_velocity.x = value * (M_PI / 180.0f);
+          } else if (type == "vy") {
+            // reported value is in deg/s, we need to convert to rad/s
+            imu_msg.angular_velocity.y = value * (M_PI / 180.0f);
+          } else if (type == "vz") {
+            // reported value is in deg/s, we need to convert to rad/s
+            imu_msg.angular_velocity.z = value * (M_PI / 180.0f);
+          } else if (type[0] == 'm') {
+            //
+          } else {
+            ROS_ERROR_STREAM("Unknown data: " << type);
+          }
+        }
+        search_start = match.suffix().first;
+      }
+      // ROS_INFO_STREAM("Trying to lock voltage pub");
+      if (voltage_found && voltage_pub_ && voltage_pub_->trylock()) {
+        voltage_pub_->unlockAndPublish();
+      }
+      // ROS_INFO_STREAM("Trying to lock IMU pub");
+      if (imu_found && imu_pub_ && imu_pub_->trylock()) {
+        imu_pub_->msg_ = imu_msg;
+        imu_pub_->unlockAndPublish();
+      }
+  }
 
   void MiniBotHWInterface::on_close(websocketpp::connection_hdl hdl) {
     ws_connected_ = false;
