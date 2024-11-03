@@ -45,6 +45,8 @@
 #include <minibot_control/interpolating_map.h>
 #include <boost/asio/io_service.hpp>
 #include <angles/angles.h>
+#include <regex> //probably overkill but eh
+
 using namespace::boost::asio;
 using boost::asio::serial_port;
 
@@ -150,6 +152,7 @@ namespace minibot_control
     io_service ios;
 
     ros::NodeHandle hwnh(nh, "hardware_interface");
+    voltage_pub_ = std::make_shared<realtime_tools::RealtimePublisher<std_msgs::Float64>>(hwnh, "voltage", 100);
 
     std::size_t error = 0;
     std::string serial_port;
@@ -187,18 +190,6 @@ namespace minibot_control
       joints_[n] = jp;
     }
     ROS_INFO_NAMED("minibot_hw_interface", "MiniBotHWInterface Ready.");
-
-    // ROS_INFO_STREAM("Parsed " << joints_.size() << " joints");
-    // for (std::size_t joint_id = 0; joint_id < joints_.size(); ++joint_id) {
-    //   auto thisJoint = joints_[joint_names_[joint_id]];
-    //   ROS_INFO_STREAM("Joint " << joint_names_[joint_id] << " has type " << thisJoint->type);
-    //   if (thisJoint->type == motor) {
-    //     joint_velocity_[joint_id] = 0.0;
-    //   } else if (thisJoint->type == servo) {
-    //     joint_position_[joint_id] = thisJoint->initial_position;
-    //     ROS_INFO_STREAM("Initial joint position for " << joint_names_[joint_id] << " = " << joint_position_[joint_id]);
-    //   }
-    // }
   }
 
   void MiniBotHWInterface::read(ros::Duration& elapsed_time)
@@ -247,7 +238,20 @@ namespace minibot_control
   }
 
   void MiniBotHWInterface::on_message(websocketpp::connection_hdl hdl, WebSocketClient::message_ptr msg) {
-      ROS_INFO_STREAM("Received message: " << msg->get_payload());
+      const std::string msg_str = msg->get_payload();
+      // want to match "v;4.82;" and publish 4.82 
+      // Define the regex pattern for "v;<float>;"
+      const std::regex pattern(R"(v;([-+]?[0-9]*\.?[0-9]+);)");
+      std::smatch match;
+      if (std::regex_search(msg_str, match, pattern) && match.size() > 1) {
+          float value = std::stof(match[1].str());
+          if (voltage_pub_ && voltage_pub_->trylock()) {
+              voltage_pub_->msg_.data = value;
+              voltage_pub_->unlockAndPublish();
+          }
+          return;
+      }
+      ROS_INFO_STREAM("Received message: " << msg_str);
   }
 
 
@@ -258,6 +262,7 @@ namespace minibot_control
 
   void MiniBotHWInterface::write(ros::Duration& elapsed_time)
   {
+    ROS_INFO_STREAM_THROTTLE(10, "HW Interface running");
     //ROS_INFO_STREAM("Ran write function"); 
     // Safety
     enforceLimits(elapsed_time);

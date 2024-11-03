@@ -75,7 +75,7 @@ void update(const ros::Time &time, const ros::Duration &period)
     double y = -curr_cmd.linear.y;
     double x = curr_cmd.linear.x;
     double rx = -curr_cmd.angular.z;
-    ROS_INFO_STREAM_THROTTLE(5, "Y " << y << " X " << x  << " Z " << rx);
+    //ROS_INFO_STREAM_THROTTLE(5, "Y " << y << " X " << x  << " Z " << rx);
 
     fl_wheel_joint_.setCommand(y + x + rx);
     bl_wheel_joint_.setCommand(y - x + rx);
@@ -84,84 +84,84 @@ void update(const ros::Time &time, const ros::Duration &period)
 
     return;
     // stop here
-    double angle = atan2(curr_cmd.linear.y, curr_cmd.linear.x);
-    angle *= (4 / M_PI);
-    angle = round(angle);
-    angle += 4;
+    // double angle = atan2(curr_cmd.linear.y, curr_cmd.linear.x);
+    // angle *= (4 / M_PI);
+    // angle = round(angle);
+    // angle += 4;
 
-    double frontLeftPower = rx;
-    double backLeftPower = rx;
-    double frontRightPower = -rx;
-    double backRightPower = -rx;
+    // double frontLeftPower = rx;
+    // double backLeftPower = rx;
+    // double frontRightPower = -rx;
+    // double backRightPower = -rx;
 
-    double stickMagnitude = std::sqrt(std::pow(y, 2) + std::pow(x, 2));
-    double magnitude = stickMagnitude > 0 ? stickMagnitude : 1;
+    // double stickMagnitude = std::sqrt(std::pow(y, 2) + std::pow(x, 2));
+    // double magnitude = stickMagnitude > 0 ? stickMagnitude : 1;
 
-    if (std::sqrt(std::pow(y, 2) + std::pow(x, 2)) > 0.2) {
+    // if (std::sqrt(std::pow(y, 2) + std::pow(x, 2)) > 0.2) {
 
-        if (angle == 0 || angle == 8) {
-            // move to the right
-            frontLeftPower = 1;
-            backLeftPower = -1;
-            frontRightPower = -1;
-            backRightPower = 1;
-        }
-        else if (angle == 1) {
-            // move diagonally (back right)
-            frontLeftPower = 0;
-            backLeftPower = -1;
-            frontRightPower = -1;
-            backRightPower = 0;
-        }
-        else if (angle == 2) {
-            // move backwards
-            frontLeftPower = -1;
-            backLeftPower = -1;
-            frontRightPower = -1;
-            backRightPower = -1;
-        }
-        else if (angle == 3) {
-            // move diagonally (back left)
-            frontLeftPower = -1;
-            backLeftPower = 0;
-            frontRightPower = 0;
-            backRightPower = -1;
-        }
-        else if (angle == 4) {
-            // move to the left
-            frontLeftPower = -1;
-            backLeftPower = 1;
-            frontRightPower = 1;
-            backRightPower = -1;
-        }
-        else if (angle == 5) {
-            // move diagonally (front left)
-            frontLeftPower = 0;
-            backLeftPower = 1;
-            frontRightPower = 1;
-            backRightPower = 0;
-        }
-        else if (angle == 6) {
-            // move forwards
-            frontLeftPower = 1;
-            backLeftPower = 1;
-            frontRightPower = 1;
-            backRightPower = 1;
-        }
-        else if (angle == 7) {
-            // move diagonally (front right)
-            frontLeftPower = 1;
-            backLeftPower = 0;
-            frontRightPower = 0;
-            backRightPower = 1;
-        }
+    //     if (angle == 0 || angle == 8) {
+    //         // move to the right
+    //         frontLeftPower = 1;
+    //         backLeftPower = -1;
+    //         frontRightPower = -1;
+    //         backRightPower = 1;
+    //     }
+    //     else if (angle == 1) {
+    //         // move diagonally (back right)
+    //         frontLeftPower = 0;
+    //         backLeftPower = -1;
+    //         frontRightPower = -1;
+    //         backRightPower = 0;
+    //     }
+    //     else if (angle == 2) {
+    //         // move backwards
+    //         frontLeftPower = -1;
+    //         backLeftPower = -1;
+    //         frontRightPower = -1;
+    //         backRightPower = -1;
+    //     }
+    //     else if (angle == 3) {
+    //         // move diagonally (back left)
+    //         frontLeftPower = -1;
+    //         backLeftPower = 0;
+    //         frontRightPower = 0;
+    //         backRightPower = -1;
+    //     }
+    //     else if (angle == 4) {
+    //         // move to the left
+    //         frontLeftPower = -1;
+    //         backLeftPower = 1;
+    //         frontRightPower = 1;
+    //         backRightPower = -1;
+    //     }
+    //     else if (angle == 5) {
+    //         // move diagonally (front left)
+    //         frontLeftPower = 0;
+    //         backLeftPower = 1;
+    //         frontRightPower = 1;
+    //         backRightPower = 0;
+    //     }
+    //     else if (angle == 6) {
+    //         // move forwards
+    //         frontLeftPower = 1;
+    //         backLeftPower = 1;
+    //         frontRightPower = 1;
+    //         backRightPower = 1;
+    //     }
+    //     else if (angle == 7) {
+    //         // move diagonally (front right)
+    //         frontLeftPower = 1;
+    //         backLeftPower = 0;
+    //         frontRightPower = 0;
+    //         backRightPower = 1;
+    //     }
 
-    }
+    // }
 
-    frontLeftPower *= magnitude;
-    backLeftPower *= magnitude;
-    frontRightPower *= magnitude;
-    backRightPower *= magnitude;
+    // frontLeftPower *= magnitude;
+    // backLeftPower *= magnitude;
+    // frontRightPower *= magnitude;
+    // backRightPower *= magnitude;
 
     // frontLeftPower *= sign(frontLeftPower); //* remap(std::abs(frontLeftPower), 0, 1, 0.5, 1) 
     // backLeftPower *= sign(backLeftPower); //* remap(std::abs(backLeftPower), 0, 1, 0.5, 1)

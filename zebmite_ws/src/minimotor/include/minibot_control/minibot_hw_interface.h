@@ -49,6 +49,9 @@
 #include <thread>
 #include <string>
 #include <mutex>
+#include <realtime_tools/realtime_publisher.h>
+#include <std_msgs/Float64.h>
+
 
 typedef websocketpp::client<websocketpp::config::asio_client> WebSocketClient;
 
@@ -134,7 +137,8 @@ protected:
   bool use_websocket_ = false;
   bool ws_connected_ = false;
   bool log_ws_ = true;
-  // fill in stuff for ws comms
+  std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64>> voltage_pub_;
+  
 };  // class
 
 }  // namespace minibot_control
