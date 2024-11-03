@@ -194,50 +194,73 @@
 
 <link name="bl_drive_link"></link>
 
-<joint name="bl_drive" type="fixed">
+<joint name="bl_drive" type="revolute">
     <parent link="base_link"/>
     <child link="bl_drive_link" />
-    <origin rpy="0.0 0 0" xyz="0 0 0"/>
+    <origin rpy="0.0 0 0" xyz="69 1 1"/>
+    <axis xyz="0 0 1"/>
+<limit effort="1" velocity="20" />
+<joint_properties friction="0.0"/>
 </joint>
 
 <link name="br_drive_link"></link>
 
-<joint name="br_drive" type="fixed">
+<joint name="br_drive" type="revolute">
     <parent link="base_link"/>
     <child link="br_drive_link" />
     <origin rpy="0.0 0 0" xyz="0 0 0"/>
+    <limit effort="1" velocity="20" />
+<joint_properties friction="0.0"/>
+    
 </joint>
 
 <link name="fl_drive_link"></link>
 
-<joint name="fl_drive" type="fixed">
+<joint name="fl_drive" type="revolute">
     <parent link="base_link"/>
     <child link="fl_drive_link" />
     <origin rpy="0.0 0 0" xyz="0 0 0"/>
+    <limit effort="1" velocity="20" />
+<joint_properties friction="0.0"/>
 </joint>
 
 <link name="fr_drive_link"></link>
 
-<joint name="fr_drive" type="fixed">
+<joint name="fr_drive" type="revolute">
     <parent link="base_link"/>
     <child link="fr_drive_link" />
     <origin rpy="0.0 0 0" xyz="0 0 0"/>
+    <limit effort="1" velocity="20" />
+<joint_properties friction="0.0"/>
 </joint>
 
 <link name="intake_link"></link>
 
-<joint name="intake" type="fixed">
+<joint name="intake" type="revolute">
     <parent link="base_link"/>
     <child link="intake_link" />
     <origin rpy="0.0 0 0" xyz="0 0 0"/>
+    <limit effort="1" velocity="20" />
+<joint_properties friction="0.0"/>
 </joint>
 
 <link name="test_servo_link"></link>
 
-<joint name="test_servo" type="fixed">
+<joint name="test_servo" type="revolute">
     <parent link="base_link"/>
     <child link="test_servo_link" />
     <origin rpy="0.0 0 0" xyz="0 0 0"/>
+    <limit effort="1" velocity="20" />
+<joint_properties friction="0.0"/>
+</joint>
+
+<link name="top_intake_link"></link>
+<joint name="intake_top_roller" type="revolute">
+    <parent link="base_link"/>
+    <child link="top_intake_link" />
+    <origin rpy="0.0 0 0" xyz="0 0 0"/>
+    <limit effort="1" velocity="20" />
+<joint_properties friction="0.0"/>
 </joint>
 
 </robot>

@@ -13,6 +13,7 @@ hardware_interface:
       - bl_drive
       - br_drive
       - intake
+      - intake_top_roller
    sim_control_mode: 0 # 0: position, 1: velocity
    write_proto: 1 # 0 for bluetooth serial, 1 for websockets (nou2 vs 3)  
    port: /dev/rfcomm0
@@ -56,8 +57,15 @@ bl_drive:
 
 intake:
    type: motor
-   port: 5
-   inverted: true
+   port: 8
+   inverted: false
+   velocity_mult: 1.0
+   velocity_feed_forward: 0.0
+
+intake_top_roller:
+   type: motor
+   port: 7
+   inverted: false
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 
@@ -103,6 +111,10 @@ test_servo_controller:
 intake_controller:
   type: velocity_controllers/JointVelocityController
   joint: intake
+
+intake_top_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: intake_top_roller
 
 auto_controller:
   type: velocity_controllers/JointVelocityController
