@@ -6,41 +6,67 @@
 const char* ssid = "254hotspot";    // SSID for the AP
 const char* password = "poofpoof";  // Password for the AP
 
-WebSocketsServer webSocket = WebSocketsServer(9000); 
-NoU_Servo testServo(1);
-int MAX_MOTORS = 8;
+WebSocketsServer webSocket = WebSocketsServer(9000);
 
-void setup(){ 
-  Serial.begin(115200);
-  Serial.setDebugOutput(true);
-  delay(2000);
-  Serial.println("Startup....");
+// can change for nou2
+constexpr int MAX_MOTORS = 8;
+constexpr int MAX_SERVOS = 6;
+
+NoU_Motor *motors[MAX_MOTORS];
+NoU_Servo *servos[MAX_SERVOS];
+
+void init_hardware() {
+  for (int i = 0; i < MAX_MOTORS; i++) {
+    NoU_Motor *m = new NoU_Motor(i+1);
+    motors[i] = m;
+    motors[i]->setInverted(false);
+  }
+
+  for (int i = 0; i < MAX_SERVOS; i++) {
+    NoU_Servo *s = new NoU_Servo(i+1, 500, 2500);
+    servos[i] = s;
+  }
+}
+
+void init_wifi() {
   WiFi.hostname("esp32");
   WiFi.setTxPower(WIFI_POWER_8_5dBm);
   int txPower = WiFi.getTxPower();
   Serial.print("TX power: ");
   Serial.println(txPower);
-  
   Serial.println("Starting ap");
   delay(2000);    
   WiFi.mode(WIFI_AP);
   WiFi.softAP(ssid, password);   
   WiFi.setTxPower(WIFI_POWER_8_5dBm);
-  Serial.println("Poof!");
-
-    // Get and print the IP address
+  // debug
   IPAddress IP = WiFi.softAPIP();
   Serial.print("Access Point IP Address: ");
   Serial.println(IP);
+}
+
+void setup(){ 
+  NoU3.begin(); // DO NOT FORGET LMAO
+  Serial.begin(115200);
+  Serial.setDebugOutput(true);
+  delay(2000);
+
+  Serial.println("Initalizing motors/servos");
+  init_hardware();
+
+  Serial.println("Starting WiFi AP");
+  init_wifi();
+
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
   Serial.println("WebSocket server started");
-
 }
 
 void loop() {
   webSocket.loop(); // Handle WebSocket events
+  delay(1);
 }
+
 
 // Handle WebSocket events
 void webSocketEvent(uint8_t clientNum, WStype_t type, uint8_t *payload, size_t length) {
@@ -58,9 +84,6 @@ void webSocketEvent(uint8_t clientNum, WStype_t type, uint8_t *payload, size_t l
       break;
     }
     case WStype_TEXT: { 
-      Serial.print("Received text from client ");
-      Serial.println((const char*)payload);
-
       // Send response back to client
       parseMessage((char*)payload, clientNum);
       break;
@@ -73,12 +96,19 @@ void webSocketEvent(uint8_t clientNum, WStype_t type, uint8_t *payload, size_t l
 
 void parseMessage(char* message, uint8_t clientNum) {
   String msg = String(message);
-  Serial.print("Command recived: ");
-  Serial.println(msg);
-  if (msg == "ping") {
-    webSocket.sendTXT(clientNum, "Pong");
+
+  if (msg == "voltage?") {
+    //Serial.print("Sent voltage of ");
+    //Serial.println(NoU3.getBatteryVoltage());
+    webSocket.sendTXT(clientNum, "v;" + String(NoU3.getBatteryVoltage()) + ";");
     return;
   }
+  if (msg == "ping") {
+    webSocket.sendTXT(clientNum, "pong");
+    return;
+  }
+  Serial.print("Command recived: ");
+  Serial.println(msg);
   // Split commands by semicolons
   int startIndex = 0;
   while (startIndex < msg.length()) {
@@ -104,29 +134,29 @@ void parseMessage(char* message, uint8_t clientNum) {
     switch (commandType) {
       case 'm':
         if (index >= 1 && index <= MAX_MOTORS) { 
-          // motors[index - 1]->set(value); // Set motor command eventually
+          motors[index-1]->set(value); 
           Serial.printf("Motor %d set to: %f\n", index, value);
-          webSocket.sendTXT(clientNum, "Motor command received.");
+          //webSocket.sendTXT(clientNum, "Motor command received.");
         } else {
           webSocket.sendTXT(clientNum, "Invalid motor index.");
         }
         break;
       case 's':
-        if (index >= 1 && index <= 180) { 
-          testServo.write((int)value);
+        if (index >= 1 && index <= MAX_SERVOS) {
+          servos[index-1]->write((int)value);
           Serial.printf("Servo %d set to: %d degrees\n", index, (int)value);
-          webSocket.sendTXT(clientNum, "Servo command received.");
+          //webSocket.sendTXT(clientNum, "Servo command received.");
         } else {
-          webSocket.sendTXT(clientNum, "Invalid servo angle. Must be between 0 and 180.");
+          webSocket.sendTXT(clientNum, "Invalid servo index.");
         }
         break;
       default:
         webSocket.sendTXT(clientNum, "Invalid command type.");
         break;
     }
-
     // Move past the value to continue processing commands
     startIndex = secondSemicolon + 1;
   }
+  webSocket.sendTXT(clientNum, "Success");
 }
 
