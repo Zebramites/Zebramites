@@ -48,10 +48,14 @@ void init_wifi() {
   Serial.print("TX power: ");
   Serial.println(txPower);
   Serial.println("Starting ap");
-  delay(2000);    
-  WiFi.mode(WIFI_AP);
-  WiFi.softAP(ssid, password);   
   WiFi.setTxPower(WIFI_POWER_8_5dBm);
+  delay(2000);
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ssid, password);
+  WiFi.setTxPower(WIFI_POWER_8_5dBm);
+  txPower = WiFi.getTxPower();
+  Serial.print("TX power: ");
+  Serial.println(txPower);
   // debug
   IPAddress IP = WiFi.softAPIP();
   Serial.print("Access Point IP Address: ");
@@ -111,7 +115,7 @@ void loop() {
     if (LSM6.gyroscopeAvailable()) {
       LSM6.readGyroscope(&gyroscope_x, &gyroscope_y, &gyroscope_z); // deg/s
     }
-    // Serial.printf("%f %f %f\n", gyroscope_x, gyroscope_y, gyroscope_z);
+    Serial.printf("%f %f %f\n", gyroscope_x, gyroscope_y, gyroscope_z); // if this is not included, the LSM6 will stop sending interrupts for some reason?
   }
 
   // Check MMC5983MA for new data

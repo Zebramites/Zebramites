@@ -245,7 +245,7 @@ namespace minibot_control
   void MiniBotHWInterface::on_message(websocketpp::connection_hdl hdl, WebSocketClient::message_ptr msg) {
       const std::string msg_str = msg->get_payload();
       // data is published as a string of {field};{value};
-      const std::regex pattern("([a-z]+);([\\d.]+);");
+      const std::regex pattern("([a-z]+);([-\\d.]+);");
 
       // ROS_INFO_STREAM("Received message: " << msg_str);
 
@@ -268,10 +268,23 @@ namespace minibot_control
           } else if (type == "imut") {
             // assuming ax always is included first with IMU data
             imu_found = true;
-            float time_value = std::stoull(match[2].str());
+            unsigned long long time_value = std::stoull(match[2].str());
             imu_msg.header.stamp = ros::Time(time_value / 1000000.0d); // this is not the real ROS timestamp, it's the ESP32's time since boot
             // so we can integrate velocity correctly
+            // TODO tune covariances
             imu_msg.header.frame_id = "base_link";
+            imu_msg.angular_velocity_covariance[0*3+0] = 0.1;
+            imu_msg.angular_velocity_covariance[1*3+1] = 0.1;
+            imu_msg.angular_velocity_covariance[2*3+2] = 0.1;
+            imu_msg.linear_acceleration_covariance[0*3+0] = 0.1;
+            imu_msg.linear_acceleration_covariance[1*3+1] = 0.1;
+            imu_msg.linear_acceleration_covariance[2*3+2] = 0.1;
+
+            mag_msg.header.stamp = ros::Time(time_value / 1000000.0d);
+            mag_msg.header.frame_id = "base_link";
+            mag_msg.magnetic_field_covariance[0*3+0] = 1e-3;
+            mag_msg.magnetic_field_covariance[1*3+1] = 1e-3;
+            mag_msg.magnetic_field_covariance[2*3+2] = 1e-3;
           } else if (type == "ax") {
             // reported value is in g's, we need to convert to m/s^2
             imu_msg.linear_acceleration.x = value * 9.80665;
@@ -290,21 +303,23 @@ namespace minibot_control
           } else if (type == "vz") {
             // reported value is in deg/s, we need to convert to rad/s
             imu_msg.angular_velocity.z = value * (M_PI / 180.0f);
+            // ROS_INFO_STREAM("this message is " << value * (M_PI / 180.0f) << ", ang vel z = " << imu_msg.angular_velocity.z);
           } else if (type == "mx") {
-            // reported value is in uTeslas, we need Teslas (multiply by 1000000)
-            mag_msg.magnetic_field.x = value * 1000000.0f;
+            // reported value is in uTeslas, we need Teslas (divide by 1000000)
+            mag_msg.magnetic_field.x = value / 1000000.0f;
           } else if (type == "my") {
-            // reported value is in uTeslas, we need Teslas (multiply by 1000000)
-            mag_msg.magnetic_field.y = value * 1000000.0f;
+            // reported value is in uTeslas, we need Teslas (divide by 1000000)
+            mag_msg.magnetic_field.y = value / 1000000.0f;
           } else if (type == "mz") {
-            // reported value is in uTeslas, we need Teslas (multiply by 1000000)
-            mag_msg.magnetic_field.z = value * 1000000.0f;
+            // reported value is in uTeslas, we need Teslas (divide by 1000000)
+            mag_msg.magnetic_field.z = value / 1000000.0f;
           } else {
             ROS_ERROR_STREAM("Unknown data: " << type);
           }
         }
         search_start = match.suffix().first;
       }
+      // ROS_INFO_STREAM("imu_msg is " << imu_msg.angular_velocity);
       // ROS_INFO_STREAM("Trying to lock voltage pub");
       if (voltage_found && voltage_pub_ && voltage_pub_->trylock()) {
         voltage_pub_->unlockAndPublish();

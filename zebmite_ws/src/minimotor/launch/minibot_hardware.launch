@@ -32,7 +32,7 @@
     <group ns="hardware_interface">
       <node name="imu_filter" pkg="imu_filter_madgwick" type="imu_filter_node" output="screen">
         <param name="use_mag" value="true"/>
-        <param name="publish_tf" value="true"/>
+        <param name="publish_tf" value="false"/>
       </node>
     </group>
 
