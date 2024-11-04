@@ -153,7 +153,8 @@ namespace minibot_control
 
     ros::NodeHandle hwnh(nh, "hardware_interface");
     voltage_pub_ = std::make_shared<realtime_tools::RealtimePublisher<std_msgs::Float64>>(hwnh, "voltage", 100);
-    imu_pub_ = std::make_shared<realtime_tools::RealtimePublisher<sensor_msgs::Imu>>(hwnh, "imu_unfiltered", 100);
+    imu_pub_ = std::make_shared<realtime_tools::RealtimePublisher<sensor_msgs::Imu>>(hwnh, "imu/data_raw", 100);
+    mag_pub_ = std::make_shared<realtime_tools::RealtimePublisher<sensor_msgs::MagneticField>>(hwnh, "imu/mag", 100);
 
     std::size_t error = 0;
     std::string serial_port;
@@ -254,6 +255,7 @@ namespace minibot_control
       bool voltage_found = false;
       bool imu_found = false;
       sensor_msgs::Imu imu_msg;
+      sensor_msgs::MagneticField mag_msg;
       while (std::regex_search(search_start, msg_str.cend(), match, pattern))
       {
         // ROS_INFO_STREAM("Found a regex match of size " << match.size() << " with first entry " << match[0].str() << " " << match[1].str() << " " << match[2].str());
@@ -288,8 +290,15 @@ namespace minibot_control
           } else if (type == "vz") {
             // reported value is in deg/s, we need to convert to rad/s
             imu_msg.angular_velocity.z = value * (M_PI / 180.0f);
-          } else if (type[0] == 'm') {
-            //
+          } else if (type == "mx") {
+            // reported value is in uTeslas, we need Teslas (multiply by 1000000)
+            mag_msg.magnetic_field.x = value * 1000000.0f;
+          } else if (type == "my") {
+            // reported value is in uTeslas, we need Teslas (multiply by 1000000)
+            mag_msg.magnetic_field.y = value * 1000000.0f;
+          } else if (type == "mz") {
+            // reported value is in uTeslas, we need Teslas (multiply by 1000000)
+            mag_msg.magnetic_field.z = value * 1000000.0f;
           } else {
             ROS_ERROR_STREAM("Unknown data: " << type);
           }
@@ -304,6 +313,10 @@ namespace minibot_control
       if (imu_found && imu_pub_ && imu_pub_->trylock()) {
         imu_pub_->msg_ = imu_msg;
         imu_pub_->unlockAndPublish();
+      }
+      if (imu_found && mag_pub_ && mag_pub_->trylock()) {
+        mag_pub_->msg_ = mag_msg;
+        mag_pub_->unlockAndPublish();
       }
   }
 
