@@ -62,7 +62,7 @@ using namespace::boost::asio;
 namespace minibot_control
 {
 
-enum JointType { motor, servo };
+enum JointType { motor, servo, dio };
 
 class MiniBotJoint {
 public:
@@ -76,6 +76,10 @@ public:
   }
 
   virtual std::string setVelocity(double cmd) {
+    return "";
+  }
+
+  virtual std::string getPosition() {
     return "";
   }
 };
@@ -98,6 +102,14 @@ public:
   double scale;
   MiniBotServoJoint(uint8_t port, double offset, bool inverted, double scale, double initial_position);
   std::string setPosition(double cmd);
+};
+
+class MiniBotDIOJoint : public MiniBotJoint {
+public:
+  uint8_t pin;
+  MiniBotDIOJoint(uint8_t pin);
+  std::string setPosition(double cmd);
+  std::string getPosition();
 };
 
 /// \brief Hardware interface for a robot
