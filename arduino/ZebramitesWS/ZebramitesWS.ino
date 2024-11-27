@@ -202,7 +202,20 @@ void parseMessage(char* message, uint8_t clientNum) {
     webSocket.sendTXT(clientNum, "pong");
     return;
   }
-  Serial.print("Command recived: ");
+  // "dio?[pin number]" returns state of digital input
+  if (msg.startsWith("dio?")) {
+    long pin = msg.substring(4).toInt();
+    if (pin < 0) {
+      Serial.print("Invalid pin requested: ");
+      Serial.println(pin);
+      webSocket.sendTXT(clientNum, "Invalid pin requested.");
+      return;
+    }
+    pinMode(pin, INPUT_PULLUP);
+    webSocket.sendTXT(clientNum, "pin" + String(pin) + ";" + String(digitalRead(pin) ? "1;" : "0;"));
+    return;
+  }
+  Serial.print("Command received: ");
   Serial.println(msg);
   // Split commands by semicolons
   int startIndex = 0;
@@ -245,6 +258,14 @@ void parseMessage(char* message, uint8_t clientNum) {
           webSocket.sendTXT(clientNum, "Invalid servo index.");
         }
         break;
+      case 'd':
+        if (index >= 0) {
+          pinMode(index, OUTPUT);
+          digitalWrite(index, (int)value);
+          Serial.printf("DIO %d set to %d", index, (int)value);
+        } else {
+          webSocket.sendTXT(clientNum, "Invalid pin.");
+        }
       default:
         webSocket.sendTXT(clientNum, "Invalid command type.");
         break;

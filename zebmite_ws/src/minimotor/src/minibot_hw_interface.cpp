@@ -91,12 +91,26 @@ namespace minibot_control
     return toWrite;
   }
 
+  MiniBotDIOJoint::MiniBotDIOJoint(uint8_t pin) : MiniBotJoint(dio), pin(pin) {}
+
+  std::string MiniBotDIOJoint::setPosition(double cmd) {
+    std::string toWrite = "d" + std::to_string(pin) + ";" + std::to_string(cmd) + ";";
+    return toWrite;
+  }
+
+  std::string MiniBotDIOJoint::getPosition() {
+    std::string toWrite = "dio?" + std::to_string(pin);
+    return toWrite;
+  }
+
   JointType getType(std::string s) {
     ROS_INFO_STREAM("MOTOR TYPE " << s);
     if (s == "motor") {
       return motor;
     } else if (s == "servo") {
       return servo;
+    } else if (s == "dio") {
+      return dio;
     } else {
       ROS_WARN_STREAM("DEFAULTING TO MOTOR TYPE");
       return motor;
@@ -139,6 +153,14 @@ namespace minibot_control
       MiniBotServoJoint* j = new MiniBotServoJoint(port, offset, inverted, scale, initial_position);
       j->setPosition(initial_position);
       ROS_INFO_STREAM("Servo joint, name = " << n << ", port = " << port << ", offset = " << offset << ", scale = " << scale << ", inverted = " << inverted << ", initial_position = " << initial_position);
+      rosparam_shortcuts::shutdownIfError(n, error);
+      return j;
+    }
+    else if (t == dio) {
+      int pin;
+      error += !rosparam_shortcuts::get(n, rpnh, "pin", pin);
+      MiniBotDIOJoint* j = new MiniBotDIOJoint(pin);
+      ROS_INFO_STREAM("DIO joint, name = " << n << ", pin = " << pin);
       rosparam_shortcuts::shutdownIfError(n, error);
       return j;
     }
@@ -265,6 +287,8 @@ namespace minibot_control
           if (type == "v") {
             voltage_pub_->msg_.data = value;
             voltage_found = true;
+          } else if (type == "d") {
+            // DIO, TODO add code
           } else if (type == "imut") {
             // assuming ax always is included first with IMU data
             imu_found = true;
