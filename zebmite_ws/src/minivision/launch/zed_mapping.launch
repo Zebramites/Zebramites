@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<launch>
+  <include file="$(find minivision)/launch/zed_only.launch" />
+  <include file="$(find tagslam_launch)/launch/zed_mapping.launch" />
+</launch>
