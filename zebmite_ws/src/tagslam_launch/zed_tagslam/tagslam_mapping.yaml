@@ -59,7 +59,7 @@ bodies:
     # side to side mapping
     # THIS IS THE DEFAULT MAP, WE WILL NEED TO CHANGE AFTER WE MAP
     tags:
-    - id: 19
+    - id: 6
       pose:
         position:
           x: 0.0
