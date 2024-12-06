@@ -7,7 +7,7 @@ generic_hw_control_loop:
 # Settings for ros_control hardware interface
 hardware_interface:
    joints:
-      - test_servo
+      - test_drive
       - fr_drive
       - fl_drive
       - bl_drive
@@ -27,33 +27,41 @@ joint_state_controller:
    publish_rate: 50
 
 
+test_drive:
+   type: motor
+   port: 2
+   inverted: false
+   velocity_mult: 0.47
+   velocity_feed_forward: 0.53
+
 fr_drive:
    type: motor
-   port: 3
+   port: 8
    inverted: false
    velocity_mult: 0.47
    velocity_feed_forward: 0.53
 
 fl_drive:
    type: motor
-   port: 2
+   port: 1
    inverted: true
    velocity_mult: 0.47
    velocity_feed_forward: 0.53
 
 br_drive:
    type: motor
-   port: 4
-   inverted: false
+   port: 7
+   inverted: true
    velocity_mult: 0.47
    velocity_feed_forward: 0.53
    
 bl_drive:
    type: motor
-   port: 1
+   port: 2
    inverted: true
    velocity_mult: 0.47
    velocity_feed_forward: 0.53
+
 
 intake:
    type: motor
@@ -111,6 +119,10 @@ test_servo_controller:
 intake_controller:
   type: velocity_controllers/JointVelocityController
   joint: intake
+
+test_drive_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: test_drive
 
 intake_top_controller:
   type: velocity_controllers/JointVelocityController

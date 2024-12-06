@@ -1,8 +1,8 @@
 minimotor
 /home/ubuntu/Zebramites/zebmite_ws/devel/.private/minimotor/cmake.lock /home/ubuntu/Zebramites/zebmite_ws/devel/./cmake.lock
-/home/ubuntu/Zebramites/zebmite_ws/devel/.private/minimotor/lib/libminimotor.so /home/ubuntu/Zebramites/zebmite_ws/devel/lib/libminimotor.so
 /home/ubuntu/Zebramites/zebmite_ws/devel/.private/minimotor/lib/libminibot_hw_interface.so /home/ubuntu/Zebramites/zebmite_ws/devel/lib/libminibot_hw_interface.so
-/home/ubuntu/Zebramites/zebmite_ws/devel/.private/minimotor/lib/minimotor/minibot_hw_main /home/ubuntu/Zebramites/zebmite_ws/devel/lib/minimotor/minibot_hw_main
+/home/ubuntu/Zebramites/zebmite_ws/devel/.private/minimotor/lib/libminimotor.so /home/ubuntu/Zebramites/zebmite_ws/devel/lib/libminimotor.so
 /home/ubuntu/Zebramites/zebmite_ws/devel/.private/minimotor/lib/pkgconfig/minimotor.pc /home/ubuntu/Zebramites/zebmite_ws/devel/lib/pkgconfig/minimotor.pc
+/home/ubuntu/Zebramites/zebmite_ws/devel/.private/minimotor/lib/minimotor/minibot_hw_main /home/ubuntu/Zebramites/zebmite_ws/devel/lib/minimotor/minibot_hw_main
 /home/ubuntu/Zebramites/zebmite_ws/devel/.private/minimotor/share/minimotor/cmake/minimotorConfig-version.cmake /home/ubuntu/Zebramites/zebmite_ws/devel/share/minimotor/cmake/minimotorConfig-version.cmake
 /home/ubuntu/Zebramites/zebmite_ws/devel/.private/minimotor/share/minimotor/cmake/minimotorConfig.cmake /home/ubuntu/Zebramites/zebmite_ws/devel/share/minimotor/cmake/minimotorConfig.cmake

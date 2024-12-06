@@ -10,7 +10,7 @@
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
     <node name="joy_node" pkg="joy" type="joy_node">
-      <param name="dev" value="/dev/input/js0"/>
+      <param name="dev" value="/dev/input/event17"/>
     </node>
 
     <node name="teleop_node" pkg="minimotor" type="teleop_node.py"/>
