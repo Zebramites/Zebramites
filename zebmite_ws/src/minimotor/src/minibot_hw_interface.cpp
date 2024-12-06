@@ -175,6 +175,8 @@ namespace minibot_control
 
     ros::NodeHandle hwnh(nh, "hardware_interface");
     voltage_pub_ = std::make_shared<realtime_tools::RealtimePublisher<std_msgs::Float64>>(hwnh, "voltage", 100);
+    dist_pub_ = std::make_shared<realtime_tools::RealtimePublisher<std_msgs::Float64>>(hwnh, "distance_sensor", 100);
+
     imu_pub_ = std::make_shared<realtime_tools::RealtimePublisher<sensor_msgs::Imu>>(hwnh, "imu/data_raw", 100);
     mag_pub_ = std::make_shared<realtime_tools::RealtimePublisher<sensor_msgs::MagneticField>>(hwnh, "imu/mag", 100);
 
@@ -219,10 +221,14 @@ namespace minibot_control
   void MiniBotHWInterface::read(ros::Duration& elapsed_time)
   {
     if (use_websocket_ && ws_connected_) {
+      
       // ROS_INFO_STREAM("Querying voltage");
+      
       ws_client_.send(ws_hdl_, "voltage?", websocketpp::frame::opcode::text);
+      //ws_client_.send(ws_hdl_, "dist?", websocketpp::frame::opcode::text);
+
       // ROS_INFO_STREAM("Querying IMU");
-      ws_client_.send(ws_hdl_, "imu?", websocketpp::frame::opcode::text);
+      //ws_client_.send(ws_hdl_, "imu?", websocketpp::frame::opcode::text);
     }
   }
 
@@ -276,6 +282,7 @@ namespace minibot_control
       std::string::const_iterator search_start(msg_str.cbegin());
       bool voltage_found = false;
       bool imu_found = false;
+      bool dist_found = false; 
       sensor_msgs::Imu imu_msg;
       sensor_msgs::MagneticField mag_msg;
       while (std::regex_search(search_start, msg_str.cend(), match, pattern))
@@ -287,7 +294,12 @@ namespace minibot_control
           if (type == "v") {
             voltage_pub_->msg_.data = value;
             voltage_found = true;
-          } else if (type == "d") {
+          } 
+          else if (type == "dist") {
+            dist_pub_->msg_.data = value;
+            dist_found = true;
+          } 
+          else if (type == "d") {
             // DIO, TODO add code
           } else if (type == "imut") {
             // assuming ax always is included first with IMU data
@@ -347,6 +359,9 @@ namespace minibot_control
       // ROS_INFO_STREAM("Trying to lock voltage pub");
       if (voltage_found && voltage_pub_ && voltage_pub_->trylock()) {
         voltage_pub_->unlockAndPublish();
+      }
+      if (dist_found && dist_pub_ && dist_pub_->trylock()) {
+        dist_pub_->unlockAndPublish();
       }
       // ROS_INFO_STREAM("Trying to lock IMU pub");
       if (imu_found && imu_pub_ && imu_pub_->trylock()) {

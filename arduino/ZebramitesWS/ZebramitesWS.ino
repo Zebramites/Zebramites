@@ -2,29 +2,25 @@
 #include <esp_wifi.h>  
 #include <WebSocketsServer_Generic.h> // WebSockets_Generic
 #include <Alfredo_NoU3.h>
+#include <Wire.h>
+#include "Adafruit_VL6180X.h"
 
-// from 9DOF_IMU_Robot.ino
-int interruptPinLSM6 = 48;
-int interruptPinMMC5 = 47;
-
-float acceleration_x, acceleration_y, acceleration_z;
-float gyroscope_x, gyroscope_y, gyroscope_z;
-float magnetometer_x, magnetometer_y, magnetometer_z;
-
-volatile bool newDataAvailableLSM6 = true;
-volatile bool newDataAvailableMMC5 = true;
-volatile unsigned long long lastLSM6 = 0;
-// end imu code
-
+// wifi 
 const char* ssid = "254hotspot";    // SSID for the AP
 const char* password = "poofpoof";  // Password for the AP
-
 WebSocketsServer webSocket = WebSocketsServer(9000);
+// end wifi
+
+// distance sensor
+constexpr int PIN_SDA_Q = 33;
+constexpr int PIN_SDL_Q = 34;
+Adafruit_VL6180X vl = Adafruit_VL6180X();
+// end distance sensor
+
 
 // can change for nou2
 constexpr int MAX_MOTORS = 8;
 constexpr int MAX_SERVOS = 6;
-
 NoU_Motor *motors[MAX_MOTORS];
 NoU_Servo *servos[MAX_SERVOS];
 
@@ -38,6 +34,11 @@ void init_hardware() {
   for (int i = 0; i < MAX_SERVOS; i++) {
     NoU_Servo *s = new NoU_Servo(i+1, 500, 2500);
     servos[i] = s;
+  }
+  Wire.setPins(PIN_SDA_Q, PIN_SDL_Q);
+  if (! vl.begin()) {
+    Serial.println("Failed to find distance sensor");
+    while (1);
   }
 }
 
@@ -64,6 +65,8 @@ void init_wifi() {
 
 void setup(){ 
   NoU3.begin(); // DO NOT FORGET LMAO
+  NoU3.beginIMUs();
+
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   delay(2000);
@@ -77,67 +80,11 @@ void setup(){
   webSocket.begin();
   webSocket.onEvent(webSocketEvent);
   Serial.println("WebSocket server started");
-
-  // from 9DOF_IMU_Robot.ino
-  // Initialize LSM6
-  if (LSM6.begin(Wire1) == false) {
-    Serial.println("LSM6 did not respond - check your wiring.");
-  }
-  pinMode(interruptPinLSM6, INPUT);
-  attachInterrupt(digitalPinToInterrupt(interruptPinLSM6), interruptRoutineLSM6, RISING);
-  LSM6.enableInterrupt();
-
-  // Initialize MMC5
-  if (MMC5.begin(Wire1) == false) {
-    Serial.println("MMC5983MA did not respond - check your wiring.");
-  }
-  MMC5.softReset();
-  MMC5.setFilterBandwidth(800);
-  MMC5.setContinuousModeFrequency(100);
-  MMC5.enableAutomaticSetReset();
-  MMC5.enableContinuousMode();
-  pinMode(interruptPinMMC5, INPUT);
-  attachInterrupt(digitalPinToInterrupt(interruptPinMMC5), interruptRoutineMMC5, RISING);
-  MMC5.enableInterrupt();
-  // end imu code
 }
 
 void loop() {
-  // from 9DOF_IMU_Robot.ino
-  // Check LSM6 for new data
-  if (newDataAvailableLSM6) {
-    newDataAvailableLSM6 = false;
-
-    if (LSM6.accelerationAvailable()) {
-      LSM6.readAcceleration(&acceleration_x, &acceleration_y, &acceleration_z); // g's
-    }
-
-    if (LSM6.gyroscopeAvailable()) {
-      LSM6.readGyroscope(&gyroscope_x, &gyroscope_y, &gyroscope_z); // deg/s
-    }
-    Serial.printf("%f %f %f\n", gyroscope_x, gyroscope_y, gyroscope_z); // if this is not included, the LSM6 will stop sending interrupts for some reason?
-  }
-
-  // Check MMC5983MA for new data
-  if (newDataAvailableMMC5) {
-    newDataAvailableMMC5 = false;
-    MMC5.clearMeasDoneInterrupt();
-
-    MMC5.readAccelerometer(&magnetometer_x, &magnetometer_y, &magnetometer_z);  // Results in µT (microteslas).
-  }
-  // end imu code
-
   webSocket.loop(); // Handle WebSocket events
   delay(1);
-}
-
-void interruptRoutineLSM6() {
-  newDataAvailableLSM6 = true;
-  lastLSM6 = micros();
-}
-
-void interruptRoutineMMC5() {
-  newDataAvailableMMC5 = true;
 }
 
 // Handle WebSocket events
@@ -166,6 +113,37 @@ void webSocketEvent(uint8_t clientNum, WStype_t type, uint8_t *payload, size_t l
   }
 }
 
+void processError(uint8_t status) {
+    // Some error occurred, print it out!
+  if  ((status >= VL6180X_ERROR_SYSERR_1) && (status <= VL6180X_ERROR_SYSERR_5)) {
+    Serial.println("System error");
+  }
+  else if (status == VL6180X_ERROR_ECEFAIL) {
+    Serial.println("ECE failure");
+  }
+  else if (status == VL6180X_ERROR_NOCONVERGE) {
+    Serial.println("No convergence");
+  }
+  else if (status == VL6180X_ERROR_RANGEIGNORE) {
+    Serial.println("Ignoring range");
+  }
+  else if (status == VL6180X_ERROR_SNR) {
+    Serial.println("Signal/Noise error");
+  }
+  else if (status == VL6180X_ERROR_RAWUFLOW) {
+    Serial.println("Raw reading underflow");
+  }
+  else if (status == VL6180X_ERROR_RAWOFLOW) {
+    Serial.println("Raw reading overflow");
+  }
+  else if (status == VL6180X_ERROR_RANGEUFLOW) {
+    Serial.println("Range reading underflow");
+  }
+  else if (status == VL6180X_ERROR_RANGEOFLOW) {
+    Serial.println("Range reading overflow");
+  }
+}
+
 void parseMessage(char* message, uint8_t clientNum) {
   String msg = String(message);
 
@@ -179,6 +157,20 @@ void parseMessage(char* message, uint8_t clientNum) {
     // webSocket.sendBIN(clientNum, (uint8_t*)data_values, 2*sizeof(float));
     webSocket.sendTXT(clientNum, "v;" + String(NoU3.getBatteryVoltage()) + ";");
     return;
+  }
+  if (msg == "dist?") {
+      uint8_t range = vl.readRange();
+      uint8_t status = vl.readRangeStatus();
+
+      if (status == VL6180X_ERROR_NONE) {
+        Serial.print("Range: "); Serial.println(range);
+        webSocket.sendTXT(clientNum, "dist;" + String(range) + ";");
+      }
+      else {
+        Serial.println("Error occured in reading distance");
+        webSocket.sendTXT(clientNum, "d;900;");
+      }
+
   }
   if (msg == "imu?") {
     // float data_values[10]; // ax ay az gx gy gz mx my mz
@@ -194,7 +186,8 @@ void parseMessage(char* message, uint8_t clientNum) {
     // data_values[8] = magnetometer_y;
     // data_values[9] = magnetometer_z;
     // webSocket.sendBIN(clientNum, (uint8_t*)data_values, 10*sizeof(float));
-    webSocket.sendTXT(clientNum, "imut;" + String(lastLSM6) + ";ax;" + String(acceleration_x) + ";ay;" + String(acceleration_y) + ";az;" + String(acceleration_z) + ";vx;" + String(gyroscope_x) + ";vy;" + String(gyroscope_y) + ";vz;" + String(gyroscope_z) + ";mx;" + String(magnetometer_x) + ";my;" + String(magnetometer_y) + ";mz;" + String(magnetometer_z) + ";");
+    webSocket.sendTXT(clientNum, "NOT IMPLMENTED!!!");
+    //webSocket.sendTXT(clientNum, "imut;" + String(0) + ";ax;" + String(acceleration_x) + ";ay;" + String(acceleration_y) + ";az;" + String(acceleration_z) + ";vx;" + String(gyroscope_x) + ";vy;" + String(gyroscope_y) + ";vz;" + String(gyroscope_z) + ";mx;" + String(magnetometer_x) + ";my;" + String(magnetometer_y) + ";mz;" + String(magnetometer_z) + ";");
     // Serial.println("imut;" + String(lastLSM6) + ";ax;" + String(acceleration_x) + ";ay;" + String(acceleration_y) + ";az;" + String(acceleration_z) + ";vx;" + String(gyroscope_x) + ";vy;" + String(gyroscope_y) + ";vz;" + String(gyroscope_z) + ";mx;" + String(magnetometer_x) + ";my;" + String(magnetometer_y) + ";mz;" + String(magnetometer_z) + ";\n");
     return;
   }
