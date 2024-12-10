@@ -15,6 +15,8 @@ WebSocketsServer webSocket = WebSocketsServer(9000);
 constexpr int PIN_SDA_Q = 33;
 constexpr int PIN_SDL_Q = 34;
 Adafruit_VL6180X vl = Adafruit_VL6180X();
+double previous_distance = 0; 
+unsigned long last_distance_time = 0;
 // end distance sensor
 
 
@@ -159,6 +161,10 @@ void parseMessage(char* message, uint8_t clientNum) {
     return;
   }
   if (msg == "dist?") {
+      if (!(millis() - last_distance_time > 100)) {
+        webSocket.sendTXT(clientNum, "dist;" + String(previous_distance) + ";");
+        return;
+      }
       uint8_t range = vl.readRange();
       uint8_t status = vl.readRangeStatus();
 
@@ -170,7 +176,8 @@ void parseMessage(char* message, uint8_t clientNum) {
         Serial.println("Error occured in reading distance");
         webSocket.sendTXT(clientNum, "d;900;");
       }
-
+      last_distance_time = millis();
+      previous_distance = range;
   }
   if (msg == "imu?") {
     // float data_values[10]; // ax ay az gx gy gz mx my mz

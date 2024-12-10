@@ -27,14 +27,16 @@
 
     <!-- Load controller manager -->
     <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
-	  output="screen" args="spawn joint_state_controller mecanum_drive_controller intake_controller intake_top_controller" />
+	  output="screen" args="spawn roof_roller_controller shooter_controller joint_state_controller mecanum_drive_controller intake_controller intake_top_controller" />
 
+    <!-- 
     <group ns="hardware_interface">
       <node name="imu_filter" pkg="imu_filter_madgwick" type="imu_filter_node" output="screen">
         <param name="use_mag" value="true"/>
         <param name="publish_tf" value="false"/>
       </node>
     </group>
+    -->
 
     <!-- Convert joint states to /tf tranforms -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
@@ -48,7 +50,10 @@
       <param name="dev" value="/dev/input/js1"/>
     </node> -->
 
-    <!-- <node name="teleop_node" pkg="minimotor" type="teleop_node.py"/> -->
+    <node name="joy_node" pkg="minimotor" type="evdev_joystick.py" output="screen">
+    </node>
+
+    <node name="teleop_node" pkg="minimotor" type="teleop_node.py" output="screen"/>
 
     <node name="drive_to_point" pkg="minimotor" type="drive_to_point.py"/>
 

@@ -182,6 +182,7 @@ private:
 
 void cmdVelCallback(const geometry_msgs::Twist &command)
 {
+    ROS_INFO_STREAM("call cmd-vel cb");
 	command_.writeFromNonRT(command);
 }
 
