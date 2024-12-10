@@ -7,13 +7,14 @@ generic_hw_control_loop:
 # Settings for ros_control hardware interface
 hardware_interface:
    joints:
-      - test_drive
+      - roof_roller
       - fr_drive
       - fl_drive
       - bl_drive
       - br_drive
       - intake
       - intake_top_roller
+      - shooter
    sim_control_mode: 0 # 0: position, 1: velocity
    write_proto: 1 # 0 for bluetooth serial, 1 for websockets (nou2 vs 3)  
    port: /dev/rfcomm0
@@ -26,54 +27,61 @@ joint_state_controller:
    type:         joint_state_controller/JointStateController
    publish_rate: 50
 
-
-test_drive:
+shooter:
    type: motor
-   port: 2
+   port: 3
    inverted: false
-   velocity_mult: 0.47
-   velocity_feed_forward: 0.53
+   velocity_mult: 1.0
+   velocity_feed_forward: 0.0
+
+
+roof_roller:
+   type: motor
+   port: 4
+   inverted: false
+   velocity_mult: 1.0
+   velocity_feed_forward: 0.0
 
 fr_drive:
    type: motor
    port: 8
    inverted: false
-   velocity_mult: 0.47
-   velocity_feed_forward: 0.53
+   velocity_mult: 0.58
+   velocity_feed_forward: 0.50
 
 fl_drive:
    type: motor
    port: 1
    inverted: true
-   velocity_mult: 0.47
-   velocity_feed_forward: 0.53
+   velocity_mult: 0.58
+   velocity_feed_forward: 0.50
 
 br_drive:
    type: motor
    port: 7
    inverted: true
-   velocity_mult: 0.47
-   velocity_feed_forward: 0.53
+   velocity_mult: 0.58
+   velocity_feed_forward: 0.50
    
 bl_drive:
    type: motor
    port: 2
    inverted: true
-   velocity_mult: 0.47
-   velocity_feed_forward: 0.53
+   velocity_mult: 0.58
+   velocity_feed_forward: 0.50
 
 
 intake:
    type: motor
-   port: 8
+   port: 5
    inverted: false
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 
 intake_top_roller:
    type: motor
-   port: 7
-   inverted: false
+   port: 6
+   inverted: true
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 
@@ -120,9 +128,9 @@ intake_controller:
   type: velocity_controllers/JointVelocityController
   joint: intake
 
-test_drive_controller:
+roof_roller_controller:
   type: velocity_controllers/JointVelocityController
-  joint: test_drive
+  joint: roof_roller
 
 intake_top_controller:
   type: velocity_controllers/JointVelocityController
@@ -131,6 +139,11 @@ intake_top_controller:
 auto_controller:
   type: velocity_controllers/JointVelocityController
   joint: auto_motor
+
+shooter_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: shooter
+
 
 mecanum_drive_controller:
   type: minimotor/MecanumDriveController
