@@ -38,10 +38,10 @@ void init_hardware() {
     servos[i] = s;
   }
   Wire.setPins(PIN_SDA_Q, PIN_SDL_Q);
-  if (! vl.begin()) {
-    Serial.println("Failed to find distance sensor");
-    while (1);
-  }
+  // if (! vl.begin()) {
+  //   Serial.println("Failed to find distance sensor");
+  //   while (1);
+  // }
 }
 
 void init_wifi() {

@@ -27,7 +27,7 @@
 
     <!-- Load controller manager -->
     <node name="ros_control_controller_manager" pkg="controller_manager" type="controller_manager" respawn="false"
-	  output="screen" args="spawn roof_roller_controller shooter_controller joint_state_controller mecanum_drive_controller intake_controller intake_top_controller" />
+	  output="screen" args="spawn test_joint_controller roof_roller_controller shooter_controller joint_state_controller mecanum_drive_controller intake_controller intake_top_controller" />
 
     <!-- 
     <group ns="hardware_interface">

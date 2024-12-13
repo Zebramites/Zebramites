@@ -15,6 +15,7 @@ hardware_interface:
       - intake
       - intake_top_roller
       - shooter
+      - test_joint
    sim_control_mode: 0 # 0: position, 1: velocity
    write_proto: 1 # 0 for bluetooth serial, 1 for websockets (nou2 vs 3)  
    port: /dev/rfcomm0
@@ -27,6 +28,13 @@ joint_state_controller:
    type:         joint_state_controller/JointStateController
    publish_rate: 50
 
+test_joint:
+   type: motor
+   port: 1
+   inverted: false
+   velocity_mult: 1.0
+   velocity_feed_forward: 0.0
+
 shooter:
    type: motor
    port: 3
@@ -38,49 +46,49 @@ shooter:
 roof_roller:
    type: motor
    port: 4
-   inverted: false
+   inverted: true
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 
 fr_drive:
    type: motor
-   port: 8
+   port: 1
    inverted: false
-   velocity_mult: 0.58
-   velocity_feed_forward: 0.68
+   velocity_mult: 0.52
+   velocity_feed_forward: 0.48
 
 fl_drive:
    type: motor
-   port: 1
+   port: 7
    inverted: true
-   velocity_mult: 0.58
-   velocity_feed_forward: 0.68
+   velocity_mult: 0.52
+   velocity_feed_forward: 0.48
 
 br_drive:
    type: motor
-   port: 7
+   port: 2
    inverted: true
-   velocity_mult: 0.58
-   velocity_feed_forward: 0.68
+   velocity_mult: 0.52
+   velocity_feed_forward: 0.48
    
 bl_drive:
    type: motor
-   port: 2
-   inverted: true
-   velocity_mult: 0.58
-   velocity_feed_forward: 0.68
+   port: 8
+   inverted: false
+   velocity_mult: 0.52
+   velocity_feed_forward: 0.48
 
 
 intake:
    type: motor
-   port: 5
+   port: 6
    inverted: false
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 
 intake_top_roller:
    type: motor
-   port: 6
+   port: 5
    inverted: true
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
@@ -144,6 +152,9 @@ shooter_controller:
   type: velocity_controllers/JointVelocityController
   joint: shooter
 
+test_joint_controller:
+  type: velocity_controllers/JointVelocityController
+  joint: test_joint
 
 mecanum_drive_controller:
   type: minimotor/MecanumDriveController

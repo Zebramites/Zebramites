@@ -45,12 +45,16 @@ def callback(msg):
     rospy.loginfo(msg.buttons[8])
     if msg.buttons[7] > 0:
         float_msg = Float64()
-        float_msg.data = -0.8
+        float_msg.data = -1.0
         shooter_pub.publish(float_msg)
+        top_intake_pub.publish(Float64(0.6))
+
     else:
         float_msg = Float64()
         float_msg.data = 0
         shooter_pub.publish(float_msg)
+        top_intake_pub.publish(float_msg)
+
 
 
 
