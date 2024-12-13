@@ -153,6 +153,7 @@ protected:
   bool log_ws_ = true;
   std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64>> voltage_pub_;
   std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64>> dist_pub_;
+  std::shared_ptr<realtime_tools::RealtimePublisher<std_msgs::Float64>> dio_pub_;
   std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::Imu>> imu_pub_;
   std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::MagneticField>> mag_pub_;
   

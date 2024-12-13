@@ -174,7 +174,7 @@ void parseMessage(char* message, uint8_t clientNum) {
       }
       else {
         Serial.println("Error occured in reading distance");
-        webSocket.sendTXT(clientNum, "d;900;");
+        webSocket.sendTXT(clientNum, "dist;900;");
       }
       last_distance_time = millis();
       previous_distance = range;
@@ -212,7 +212,7 @@ void parseMessage(char* message, uint8_t clientNum) {
       return;
     }
     pinMode(pin, INPUT_PULLUP);
-    webSocket.sendTXT(clientNum, "pin" + String(pin) + ";" + String(digitalRead(pin) ? "1;" : "0;"));
+    webSocket.sendTXT(clientNum, "pin;" + String(digitalRead(pin) ? "1.0;" : "0.0;"));
     return;
   }
   Serial.print("Command received: ");
