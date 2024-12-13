@@ -176,6 +176,7 @@ namespace minibot_control
     ros::NodeHandle hwnh(nh, "hardware_interface");
     voltage_pub_ = std::make_shared<realtime_tools::RealtimePublisher<std_msgs::Float64>>(hwnh, "voltage", 100);
     dist_pub_ = std::make_shared<realtime_tools::RealtimePublisher<std_msgs::Float64>>(hwnh, "distance_sensor", 100);
+    dio_pub_ = std::make_shared<realtime_tools::RealtimePublisher<std_msgs::Float64>>(hwnh, "dio", 100);
 
     imu_pub_ = std::make_shared<realtime_tools::RealtimePublisher<sensor_msgs::Imu>>(hwnh, "imu/data_raw", 100);
     mag_pub_ = std::make_shared<realtime_tools::RealtimePublisher<sensor_msgs::MagneticField>>(hwnh, "imu/mag", 100);
@@ -225,6 +226,7 @@ namespace minibot_control
       // ROS_INFO_STREAM("Querying voltage");
       
       ws_client_.send(ws_hdl_, "voltage?", websocketpp::frame::opcode::text);
+      ws_client_.send(ws_hdl_, "dio?5", websocketpp::frame::opcode::text);
       //ws_client_.send(ws_hdl_, "dist?", websocketpp::frame::opcode::text);
 
       // ROS_INFO_STREAM("Querying IMU");
@@ -283,6 +285,7 @@ namespace minibot_control
       bool voltage_found = false;
       bool imu_found = false;
       bool dist_found = false; 
+      bool dio_found = false;
       sensor_msgs::Imu imu_msg;
       sensor_msgs::MagneticField mag_msg;
       while (std::regex_search(search_start, msg_str.cend(), match, pattern))
@@ -299,8 +302,10 @@ namespace minibot_control
             dist_pub_->msg_.data = value;
             dist_found = true;
           } 
-          else if (type == "d") {
-            // DIO, TODO add code
+          else if (type == "pin") {
+            // only one DIO, DO NOT MAKE MULTIPLE
+            dio_pub_->msg_.data = value;
+            dio_found = true;
           } else if (type == "imut") {
             // assuming ax always is included first with IMU data
             imu_found = true;
@@ -362,6 +367,9 @@ namespace minibot_control
       }
       if (dist_found && dist_pub_ && dist_pub_->trylock()) {
         dist_pub_->unlockAndPublish();
+      }
+      if (dio_found && dio_pub_ && dio_pub_->trylock()) {
+        dio_pub_->unlockAndPublish();
       }
       // ROS_INFO_STREAM("Trying to lock IMU pub");
       if (imu_found && imu_pub_ && imu_pub_->trylock()) {
