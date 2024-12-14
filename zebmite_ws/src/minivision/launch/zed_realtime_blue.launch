@@ -4,4 +4,5 @@
   <include file="$(find tagslam_launch)/launch/zed_realtime.launch">
     <arg name="side" value="blue"/>
   </include>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="floor_broadcaster" args="0 0 0 0 0 0 tag_1 tag_19" />
 </launch>

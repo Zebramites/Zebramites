@@ -83,9 +83,7 @@ def joy_cb(msg: Joy):
         r.sleep()
 
     pose_stamps1 = [PoseStamped(pose=Pose(position=Point(x=point[0], y=point[1], z=0), orientation=Quaternion(x=0, y=0, z=0, w=1))) for point in points_leg1]
-    pose_stamps2 = [PoseStamped(pose=Pose(position=Point(x=point[0], y=point[1], z=0), orientation=Quaternion(x=0, y=0, z=0, w=1))) for point in points_leg2]
-    pose_stamps3 = [PoseStamped(pose=Pose(position=Point(x=point[0], y=point[1], z=0), orientation=Quaternion(x=0, y=0, z=0, w=1))) for point in points_leg3]
-    poses_stamped = [pose_stamps1, pose_stamps2, pose_stamps3]
+    poses_stamped = [pose_stamps1]
 
     for pose_stamps in poses_stamped:
         # Activate intake
