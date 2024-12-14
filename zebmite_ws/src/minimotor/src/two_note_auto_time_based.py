@@ -56,8 +56,8 @@ ac_intake = actionlib.SimpleActionClient("/minibot/intake_server", IntakeAction)
 ac_shoot = actionlib.SimpleActionClient("/minibot/shoot_server", ShootAction)
 cmd_pub = rospy.Publisher('/minibot/mecanum_drive_controller/cmd_vel', Twist, queue_size=10)
 
-DRIVE_FORWARD_TIME = 2.5
-MAX_TIME = 1.5
+DRIVE_BACK_TIME = 2.5
+MAX_TIME = 1.0
 
 def joy_cb(msg: Joy):
     if not msg.buttons[-3]:
@@ -115,7 +115,7 @@ def joy_cb(msg: Joy):
     twist.linear.y = -1.0
     twist.angular.z = 0.0
 
-    while not rospy.is_shutdown() and (not ((time.time() - start) > DRIVE_FORWARD_TIME)):
+    while not rospy.is_shutdown() and (not ((time.time() - start) > DRIVE_BACK_TIME)):
         cmd_pub.publish(twist)
         r.sleep()
     
