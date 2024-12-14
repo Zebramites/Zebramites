@@ -3,7 +3,7 @@ tagslam_parameters:
 #                 slow (use iSAM2, but test for error and use full if error is large)
 #                 fast (iSAM2 only, no test for error)
 # default: slow
-  optimizer_mode: fast
+  optimizer_mode: slow
 # minimum angle [in degrees] between optical axis and tag surface
   minimum_viewing_angle: 15.0
 # minimum tag area in pixels^2. Any tags smaller than that are ignored
@@ -29,11 +29,14 @@ body_defaults:
   position_noise: 0.05
   rotation_noise: 0.01
 # website says this is good when all tags are already known for state estimation and gives speed 
-amnesia: true
+#amnesia: true
+amnesia: false
 # no default body because all unknown tags should be ignored
 
 default_body: zebracorn_labs
 bodies:
+    # side to side mapping
+    # THIS IS THE DEFAULT MAP, WE WILL NEED TO CHANGE AFTER WE MAP
  - zebracorn_labs:
      type: simple
      is_static: true
@@ -42,11 +45,11 @@ bodies:
        position:
          x: 0.00000000
          y: -0.00000000
-         z: 0.00000000
+         z: -0.00000000
        rotation:
          x: -0.00000000
          y: -0.00000000
-         z: -0.00000000
+         z: 0.00000000
        position_noise:
          x: 0.00010000
          y: 0.00010000
@@ -56,17 +59,17 @@ bodies:
          y: 0.00001000
          z: 0.00001000
      tags:
-       - id: 1
+       - id: 2
          size: 0.05900000
          pose:
            position:
-             x: -0.00000000
-             y: -0.00000000
-             z: 0.00000000
-           rotation:
-             x: -0.00000000
+             x: 0.00000000
              y: -0.00000000
              z: -0.00000000
+           rotation:
+             x: 0.00000000
+             y: 0.00000000
+             z: 0.00000000
            position_noise:
              x: 0.00050000
              y: 0.00050000
@@ -75,127 +78,106 @@ bodies:
              x: 0.00400000
              y: 0.00400000
              z: 0.00400000
-       - id: 7
+       - id: 11
          size: 0.05900000
          pose:
            position:
-             x: 0.03741078
-             y: 0.08396677
-             z: 0.07926685
+             x: -0.01636179
+             y: 0.25953761
+             z: 0.25310079
            rotation:
-             x: 0.57885961
-             y: 0.01612303
-             z: -0.00730483
+             x: 1.57172799
+             y: -0.04015632
+             z: 0.04475527
            position_noise:
-             x: 0.00068356
-             y: 0.00052735
-             z: 0.00069569
+             x: 0.00154191
+             y: 0.00116249
+             z: 0.00114154
            rotation_noise:
-             x: 0.00408644
-             y: 0.00409717
-             z: 0.00401827
-       - id: 3
-         size: 0.05900000
-         pose:
-           position:
-             x: -1.00698387
-             y: 0.21956012
-             z: 0.04616728
-           rotation:
-             x: 1.38258708
-             y: 0.76766340
-             z: 0.76223025
-           position_noise:
-             x: 0.00389801
-             y: 0.00419778
-             z: 0.00165874
-           rotation_noise:
-             x: 0.00464395
-             y: 0.00473908
-             z: 0.00412735
-       - id: 6
-         size: 0.05900000
-         pose:
-           position:
-             x: 0.01051467
-             y: 0.27195431
-             z: 0.24946661
-           rotation:
-             x: 1.53063160
-             y: -0.00613169
-             z: -0.02957029
-           position_noise:
-             x: 0.00156488
-             y: 0.00116932
-             z: 0.00116482
-           rotation_noise:
-             x: 0.00412583
-             y: 0.00410347
-             z: 0.00405357
+             x: 0.00414429
+             y: 0.00412934
+             z: 0.00406377
        - id: 8
          size: 0.05900000
          pose:
            position:
-             x: 0.14097774
-             y: 0.14467064
-             z: 0.07808785
+             x: -0.14641931
+             y: 0.14041205
+             z: 0.08093945
            rotation:
-             x: 0.60017657
-             y: 0.36770068
-             z: 0.97016682
+             x: 0.61030596
+             y: -0.35165068
+             z: -0.96927051
            position_noise:
-             x: 0.00063060
-             y: 0.00100112
-             z: 0.00093456
+             x: 0.00063819
+             y: 0.00100926
+             z: 0.00093946
            rotation_noise:
-             x: 0.00409229
-             y: 0.00407579
-             z: 0.00403202
- - minifrc_robot:
-     type: simple
-     is_static: false
-     default_tag_size: 0.05900000
-     tags:
-     tags:
-       - id: 20
+             x: 0.00410954
+             y: 0.00409047
+             z: 0.00403841
+       - id: 9
          size: 0.05900000
          pose:
            position:
-             x: -0.00000000
-             y: -0.00000000
-             z: 0.04445000
+             x: -0.02013630
+             y: 0.08325230
+             z: 0.08384469
            rotation:
-             x: -0.00000000
-             y: 0.00000000
-             z: -0.00000000
+             x: 0.63198694
+             y: -0.01447554
+             z: -0.02856643
            position_noise:
-             x: 0.00050000
-             y: 0.00050000
-             z: 0.00050000
+             x: 0.00068889
+             y: 0.00051416
+             z: 0.00069332
            rotation_noise:
-             x: 0.00400000
-             y: 0.00400000
-             z: 0.00400000
+             x: 0.00413417
+             y: 0.00415732
+             z: 0.00402451
        - id: 10
          size: 0.05900000
          pose:
            position:
-             x: 0.00077037
-             y: 0.05385038
-             z: 0.08979783
+             x: 0.99738067
+             y: 0.18763473
+             z: 0.06441287
            rotation:
-             x: 1.48433689
-             y: 0.01972614
-             z: 0.02430165
+             x: 1.32949010
+             y: -0.80721735
+             z: -0.83465588
            position_noise:
-             x: 0.00057507
-             y: 0.00054105
-             z: 0.00054286
+             x: 0.00391365
+             y: 0.00412088
+             z: 0.00149513
            rotation_noise:
-             x: 0.00412356
-             y: 0.00411234
-             z: 0.00407058
+             x: 0.00423355
+             y: 0.00420344
+             z: 0.00411058
+#  - minifrc_robot:
+#      type: simple
+#      is_static: false
+#      default_tag_size: 0.059
+#      tags:
+#      - id: 10
+#        size: 0.059
+#        pose:
+#          position:
+#            x: -0.00000000
+#            y: 0.00000000
+#            z: -0.00000000
+#          rotation:
+#            x: -0.00000000
+#            y: -0.00000000
+#            z: -0.00000000
+#          position_noise:
+#            x: 0.00050000
+#            y: 0.00050000
+#            z: 0.00050000
+#          rotation_noise:
+#            x: 0.00400000
+#            y: 0.00400000
+#            z: 0.00400000
  - camera:
      is_static: false
      type: simple
-     
