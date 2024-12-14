@@ -226,7 +226,7 @@ namespace minibot_control
       // ROS_INFO_STREAM("Querying voltage");
       
       //ws_client_.send(ws_hdl_, "voltage?", websocketpp::frame::opcode::text);
-      ws_client_.send(ws_hdl_, "dio?5", websocketpp::frame::opcode::text);
+      // ws_client_.send(ws_hdl_, "dio?5", websocketpp::frame::opcode::text);
       //ws_client_.send(ws_hdl_, "dist?", websocketpp::frame::opcode::text);
 
       // ROS_INFO_STREAM("Querying IMU");

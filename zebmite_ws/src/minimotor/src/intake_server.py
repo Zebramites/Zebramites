@@ -3,13 +3,14 @@ import rospy
 import actionlib
 from minimotor_msgs.msg import IntakeAction, IntakeGoal, IntakeResult, IntakeFeedback
 from std_msgs.msg import Float64
+import time
 
 class IntakeServer(object):
 
     _result = IntakeResult()
 
     def beambreak_cb(self, msg):
-        self.has_note = True if msg.data == 0.0 else False # beam broken = 0.0 (note is there)
+        self.has_note = False #True if msg.data == 0.0 else False # beam broken = 0.0 (note is there)
 
     def __init__(self, name):
         self._action_name = name
