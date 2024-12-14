@@ -56,28 +56,28 @@ fr_drive:
    port: 1
    inverted: true
    velocity_mult: 0.45
-   velocity_feed_forward: 0.5
+   velocity_feed_forward: 0.45
 
 fl_drive:
    type: motor
    port: 7
    inverted: true
-   velocity_mult: 0.52
-   velocity_feed_forward: 0.48
+   velocity_mult: 0.55
+   velocity_feed_forward: 0.45
 
 br_drive:
    type: motor
    port: 2
    inverted: true
    velocity_mult: 0.45
-   velocity_feed_forward: 0.5
+   velocity_feed_forward: 0.45
    
 bl_drive:
    type: motor
    port: 8
    inverted: true
-   velocity_mult: 0.52
-   velocity_feed_forward: 0.48
+   velocity_mult: 0.55
+   velocity_feed_forward: 0.45
 
 
 intake:

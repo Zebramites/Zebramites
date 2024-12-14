@@ -7,6 +7,9 @@ import moveit_commander
 import sys
 import math
 import time
+from minimotor_msgs.msg import ShootAction, ShootGoal, ShootResult, ShootFeedback
+from minimotor_msgs.msg import IntakeAction, IntakeGoal, IntakeResult, IntakeFeedback
+import actionlib
 
 # 900 comp joystick: Bus 003 Device 055: ID 045e:028e Microsoft Corp. Xbox360 Controller
 # Xbox controller: Bus 003 Device 045: ID 045e:02ea Microsoft Corp. Xbox One S Controller
@@ -19,6 +22,8 @@ pub = rospy.Publisher("/minibot/mecanum_drive_controller/cmd_vel", Twist, queue_
 intake_pub = rospy.Publisher("/minibot/intake_controller/command", Float64, queue_size=1) 
 top_intake_pub = rospy.Publisher("/minibot/intake_top_controller/command", Float64, queue_size=1)
 roof_roller_pub = rospy.Publisher("/minibot/roof_roller_controller/command", Float64, queue_size=1)
+ac_shoot = actionlib.SimpleActionClient("/minibot/shoot_server", ShootAction)
+ac_intake = actionlib.SimpleActionClient("/minibot/intake_server", IntakeAction)
 
 shooter_pub = rospy.Publisher("/minibot/shooter_controller/command", Float64, queue_size=1)
 
@@ -33,8 +38,11 @@ def dist_sensor_callback(msg):
     global distance_value
     distance_value = msg.data
 
+last_shoot_trigger_state = False
+last_intake_state = False
+
 def callback(msg):
-    global intake_at_low_speed, LOW_INTAKE_SPEED, ANGULAR_SPEED_MULTIPLIER, distance_value
+    global intake_at_low_speed, LOW_INTAKE_SPEED, ANGULAR_SPEED_MULTIPLIER, distance_value, last_shoot_trigger_state, last_intake_state
     # publish cmd velocity with joystick input
     twist = Twist()
     twist.linear.x = -msg.axes[0]
@@ -43,33 +51,19 @@ def callback(msg):
     twist.angular.z = -1 * (-1 if msg.axes[ROT_AXIS] > 0 else 1) * ANGULAR_SPEED_MULTIPLIER * min(1, msg.axes[ROT_AXIS] ** 2 + (0.5 if msg.axes[ROT_AXIS] > 0 else 0))
 
     rospy.loginfo(msg.buttons[8])
-    if msg.buttons[7] > 0:
-        float_msg = Float64()
-        float_msg.data = -1.0
-        shooter_pub.publish(float_msg)
-        top_intake_pub.publish(Float64(0.6))
+    shoot_trigger = msg.buttons[7] > 0
+    if shoot_trigger and not last_shoot_trigger_state:
+        goal = ShootGoal()
+        ac_shoot.send_goal(goal)
+    last_shoot_trigger_state = shoot_trigger
 
-    else:
-        float_msg = Float64()
-        float_msg.data = 0
-        shooter_pub.publish(float_msg)
-        top_intake_pub.publish(float_msg)
-
-
-
-
-    if msg.buttons[8] > 0:
-        rospy.loginfo("called top branch")
-        float_msg = Float64()
-        float_msg.data = 1.0
-        intake_pub.publish(float_msg)
-        top_intake_pub.publish(float_msg)
-        roof_roller_pub.publish(float_msg)
-    else: 
-        intake_pub.publish(Float64(0.0))
-        top_intake_pub.publish(Float64(0.0))
-        roof_roller_pub.publish(Float64(0.0))
-        pass
+    intake_trigger = msg.buttons[8] > 0
+    if intake_trigger and not last_intake_state:
+        goal = IntakeGoal()
+        ac_intake.send_goal(goal)
+    if last_intake_state and not intake_trigger:
+        ac_intake.cancel_all_goals()
+    last_intake_state = intake_trigger
     pub.publish(twist)
 
 rospy.Subscriber("/minibot/joy", Joy, callback)
