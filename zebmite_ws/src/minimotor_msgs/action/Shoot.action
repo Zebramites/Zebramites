@@ -1,0 +1,9 @@
+# goal
+bool dont_spin_up
+bool dont_shoot
+bool dont_spin_down
+---
+# result
+bool success
+---
+# feedback

@@ -75,6 +75,7 @@ add_action_files(
   FILES
   DriveToPoint.action
   Intake.action
+  Shoot.action
 )
 
 ## Generate added messages and services with any dependencies listed here
