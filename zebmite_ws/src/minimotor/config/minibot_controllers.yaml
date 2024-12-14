@@ -54,9 +54,9 @@ roof_roller:
 fr_drive:
    type: motor
    port: 1
-   inverted: false
-   velocity_mult: 0.52
-   velocity_feed_forward: 0.48
+   inverted: true
+   velocity_mult: 0.45
+   velocity_feed_forward: 0.5
 
 fl_drive:
    type: motor
@@ -69,13 +69,13 @@ br_drive:
    type: motor
    port: 2
    inverted: true
-   velocity_mult: 0.52
-   velocity_feed_forward: 0.48
+   velocity_mult: 0.45
+   velocity_feed_forward: 0.5
    
 bl_drive:
    type: motor
    port: 8
-   inverted: false
+   inverted: true
    velocity_mult: 0.52
    velocity_feed_forward: 0.48
 
@@ -83,14 +83,14 @@ bl_drive:
 intake:
    type: motor
    port: 6
-   inverted: false
+   inverted: true
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 
 intake_top_roller:
    type: motor
    port: 5
-   inverted: true
+   inverted: false
    velocity_mult: 1.0
    velocity_feed_forward: 0.0
 

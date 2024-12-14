@@ -69,6 +69,7 @@ def callback(msg):
         intake_pub.publish(Float64(0.0))
         top_intake_pub.publish(Float64(0.0))
         roof_roller_pub.publish(Float64(0.0))
+        pass
     pub.publish(twist)
 
 rospy.Subscriber("/minibot/joy", Joy, callback)
