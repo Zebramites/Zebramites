@@ -57,7 +57,9 @@
 
     <node name="drive_to_point" pkg="minimotor" type="drive_to_point.py"/>
 
-    <node name="intake_server" pkg="minimotor" type="intake_server.py"/>
+    <node name="intake_server" pkg="minimotor" type="intake_server.py" output="screen"/>
+
+    <node name="shoot_server" pkg="minimotor" type="shoot_server.py" output="screen"/>
 
   </group>
 
