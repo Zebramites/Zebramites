@@ -56,8 +56,8 @@ ac_intake = actionlib.SimpleActionClient("/minibot/intake_server", IntakeAction)
 ac_shoot = actionlib.SimpleActionClient("/minibot/shoot_server", ShootAction)
 cmd_pub = rospy.Publisher('/minibot/mecanum_drive_controller/cmd_vel', Twist, queue_size=10)
 
-DRIVE_FORWARD_TIME = 2.0
-MAX_TIME = 3.0
+DRIVE_FORWARD_TIME = 2.5
+MAX_TIME = 1.5
 
 def joy_cb(msg: Joy):
     if not msg.buttons[-3]:
@@ -68,7 +68,7 @@ def joy_cb(msg: Joy):
     s = ShootGoal()
     s.dont_spin_up = False
     s.dont_shoot = False
-    s.dont_spin_down = True
+    s.dont_spin_down = False
 
     done = False
     def done_callback(state, result):
@@ -88,6 +88,8 @@ def joy_cb(msg: Joy):
         rospy.loginfo(f"shot note with state {state} and result {result}")
         done = True
 
+    time.sleep(0.5)
+
     # Activate intake
     rospy.loginfo("auto: intaking")
     i = IntakeGoal()
@@ -95,22 +97,40 @@ def joy_cb(msg: Joy):
 
     start = time.time()
 
-    while not done and not rospy.is_shutdown() and (not ((time.time() - start) > 3.0)):
+    twist = Twist()
+    twist.linear.x = 0.0
+    twist.linear.y = 1.0
+    twist.angular.z = 0.0
+
+    while not done and not rospy.is_shutdown() and (not ((time.time() - start) > MAX_TIME)):
+        cmd_pub.publish(twist)
         r.sleep()
     
     start = time.time()
 
-    rospy.loginfo("auto: driving forward")
+    rospy.loginfo("auto: driving back")
+
+    twist = Twist()
+    twist.linear.x = 0.0
+    twist.linear.y = -1.0
+    twist.angular.z = 0.0
 
     while not rospy.is_shutdown() and (not ((time.time() - start) > DRIVE_FORWARD_TIME)):
+        cmd_pub.publish(twist)
         r.sleep()
+    
+    twist = Twist()
+    twist.linear.x = 0.0
+    twist.linear.y = 0.0
+    twist.angular.z = 0.0
+    cmd_pub.publish(twist)
     
     rospy.loginfo("auto: shooting")
     # Shoot picked up note
     s = ShootGoal()
     s.dont_spin_up = False
     s.dont_shoot = False
-    s.dont_spin_down = True
+    s.dont_spin_down = False
 
     ac_shoot.send_goal(s)
 

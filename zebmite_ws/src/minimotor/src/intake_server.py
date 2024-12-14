@@ -36,7 +36,7 @@ class IntakeServer(object):
         self.top_intake_pub.publish(1.0)
         self.roof_roller_pub.publish(1.0)
 
-        while not self.has_note:
+        while not self.has_note and not rospy.is_shutdown():
             if self._as.is_preempt_requested():
                 rospy.loginfo('%s: Preempted' % self._action_name)
                 self.intake_pub.publish(0.0)
