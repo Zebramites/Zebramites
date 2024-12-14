@@ -28,13 +28,16 @@ class ShootServer(object):
         # helper variables
         r = rospy.Rate(50)
 
+        self.roof_roller_pub.publish(-1.0)
+        time.sleep(0.2)
+
         if not goal.dont_spin_up:
             rospy.loginfo("shoot_server: spinning up")
             # if not don't spin up, then spin up
             self.shooter_pub.publish(-1.0)
             self.top_intake_pub.publish(0.6)
             start = time.time()
-            while (time.time() - start) < 1.0:
+            while (time.time() - start) < 1.0 and not rospy.is_shutdown():
                 if self._as.is_preempt_requested():
                     rospy.loginfo('%s: Preempted' % self._action_name)
                     self.intake_pub.publish(0.0)
@@ -48,15 +51,15 @@ class ShootServer(object):
         
         if not goal.dont_shoot:
             # not don't shoot, so shoot
-            if not self.has_note:
-                rospy.loginfo("shoot_server: no note to shoot")
-            else:
+            # if not self.has_note:
+            #     rospy.loginfo("shoot_server: no note to shoot")
+            # else:
                 rospy.loginfo("shoot_server: shooting")
                 self.intake_pub.publish(1.0)
                 self.top_intake_pub.publish(1.0)
                 self.roof_roller_pub.publish(1.0)
 
-                while self.has_note:
+                while self.has_note and not rospy.is_shutdown():
                     if self._as.is_preempt_requested():
                         rospy.loginfo('%s: Preempted' % self._action_name)
                         self.intake_pub.publish(0.0)
@@ -68,7 +71,7 @@ class ShootServer(object):
                         return
                     r.sleep()
                 
-                time.sleep(0.25)
+                time.sleep(0.5)
 
                 rospy.loginfo("shoot_server: shot a note")
                 self.intake_pub.publish(0.0)
