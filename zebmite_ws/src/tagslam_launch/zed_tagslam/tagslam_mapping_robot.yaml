@@ -33,168 +33,75 @@ body_defaults:
 amnesia: false
 # no default body because all unknown tags should be ignored
 
-default_body: minifrc_robot
+default_body: zebracorn_labs
 bodies:
  - zebracorn_labs:
-     type: simple
-     is_static: true
-     default_tag_size: 0.059
-     pose:
-       position:
-         x: -0.00000000
-         y: 0.00000000
-         z: 0.00000000
-       rotation:
-         x: 0.00000000
-         y: -0.00000000
-         z: -0.00000000
-       position_noise:
-         x: 0.00010000
-         y: 0.00010000
-         z: 0.00010000
-       rotation_noise:
-         x: 0.00001000
-         y: 0.00001000
-         z: 0.00001000
-     tags:
-       - id: 4
-         size: 0.05900000
-         pose:
-           position:
-             x: -0.00000000
-             y: 0.00000000
-             z: 0.00000000
-           rotation:
-             x: 0.00000000
-             y: 0.00000000
-             z: 0.00000000
-           position_noise:
-             x: 0.00050000
-             y: 0.00050000
-             z: 0.00050000
-           rotation_noise:
-             x: 0.00400000
-             y: 0.00400000
-             z: 0.00400000
-       - id: 11
-         size: 0.05900000
-         pose:
-           position:
-             x: 1.07171596
-             y: 0.00332525
-             z: 0.06843361
-           rotation:
-             x: 0.02338392
-             y: -0.74060651
-             z: 0.05611526
-           position_noise:
-             x: 0.00284952
-             y: 0.00434418
-             z: 0.00350903
-           rotation_noise:
-             x: 0.00437461
-             y: 0.00447598
-             z: 0.00411453
-       - id: 13
-         size: 0.05900000
-         pose:
-           position:
-             x: 0.91191370
-             y: 0.03940212
-             z: -0.07528334
-           rotation:
-             x: -0.00481746
-             y: -0.72442246
-             z: 0.07506580
-           position_noise:
-             x: 0.00279562
-             y: 0.00371424
-             z: 0.00267640
-           rotation_noise:
-             x: 0.00444757
-             y: 0.00441021
-             z: 0.00411521
-       - id: 14
-         size: 0.05900000
-         pose:
-           position:
-             x: 1.19110497
-             y: 0.07354389
-             z: 0.18402334
-           rotation:
-             x: 0.00474602
-             y: -0.76805557
-             z: 0.06871916
-           position_noise:
-             x: 0.00293934
-             y: 0.00488963
-             z: 0.00412093
-           rotation_noise:
-             x: 0.00449353
-             y: 0.00456953
-             z: 0.00411755
-       - id: 12
-         size: 0.05900000
-         pose:
-           position:
-             x: 1.37525012
-             y: 0.02097736
-             z: 0.35391584
-           rotation:
-             x: 0.01631025
-             y: -0.77747993
-             z: 0.11454540
-           position_noise:
-             x: 0.00305273
-             y: 0.00572643
-             z: 0.00512538
-           rotation_noise:
-             x: 0.00486765
-             y: 0.00486513
-             z: 0.00417250
-       - id: 19
-         size: 0.05900000
-         pose:
-           position:
-             x: 1.11977918
-             y: -0.04129732
-             z: 0.17432649
-           rotation:
-             x: -1.51291920
-             y: -0.61797744
-             z: -0.56644071
-           position_noise:
-             x: 0.00146442
-             y: 0.00180722
-             z: 0.00225626
-           rotation_noise:
-             x: 0.00251808
-             y: 0.00229496
-             z: 0.00236819
- - minifrc_robot:
-     type: simple
-     is_static: false
-     default_tag_size: 0.059
-     tags:
-     - id: 5
-       size: 0.059
-       pose:
-         position:
-           x: 0.00000000
-           y: 0.00000000
-           z: 0.04445
-         rotation:
-           x: 0.00000000
-           y: 0.00000000
-           z: 0.00000000
-         position_noise:
-           x: 0.00050000
-           y: 0.00050000
-           z: 0.00050000
-         rotation_noise:
-           x: 0.00400000
-           y: 0.00400000
-           z: 0.00400000
+    is_static: true
+    default_tag_size: 0.059
+    pose:
+      position:
+        x: 0
+        y: 0
+        z: 0
+      rotation:
+        x: 0
+        y: 0
+        z: 0
+      position_noise:
+        x: 0.0001
+        y: 0.0001
+        z: 0.0001
+      rotation_noise:
+        x: 1.0e-05
+        y: 1.0e-05
+        z: 1.0e-05
+    type: simple
+    # side to side mapping
+    # THIS IS THE DEFAULT MAP, WE WILL NEED TO CHANGE AFTER WE MAP
+    tags:
+    - id: 19
+      pose:
+        position:
+          x: 0.0
+          y: 0.0
+          z: 0.0
+        position_noise:
+          x: 0.0005
+          y: 0.0005
+          z: 0.0005
+        rotation:
+          x: 0.0
+          y: 0.0
+          z: 0.0
+        rotation_noise:
+          x: 0.004
+          y: 0.004
+          z: 0.004
+      size: 0.059
+#  - minifrc_robot:
+#      type: simple
+#      is_static: false
+#      default_tag_size: 0.059
+#      tags:
+#      - id: 10
+#        size: 0.059
+#        pose:
+#          position:
+#            x: -0.00000000
+#            y: 0.00000000
+#            z: -0.00000000
+#          rotation:
+#            x: -0.00000000
+#            y: -0.00000000
+#            z: -0.00000000
+#          position_noise:
+#            x: 0.00050000
+#            y: 0.00050000
+#            z: 0.00050000
+#          rotation_noise:
+#            x: 0.00400000
+#            y: 0.00400000
+#            z: 0.00400000
  - camera:
      is_static: false
      type: simple

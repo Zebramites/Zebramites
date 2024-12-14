@@ -154,30 +154,87 @@ bodies:
              x: 0.00423355
              y: 0.00420344
              z: 0.00411058
-#  - minifrc_robot:
-#      type: simple
-#      is_static: false
-#      default_tag_size: 0.059
-#      tags:
-#      - id: 10
-#        size: 0.059
-#        pose:
-#          position:
-#            x: -0.00000000
-#            y: 0.00000000
-#            z: -0.00000000
-#          rotation:
-#            x: -0.00000000
-#            y: -0.00000000
-#            z: -0.00000000
-#          position_noise:
-#            x: 0.00050000
-#            y: 0.00050000
-#            z: 0.00050000
-#          rotation_noise:
-#            x: 0.00400000
-#            y: 0.00400000
-#            z: 0.00400000
+ - minifrc_robot:
+     type: simple
+     is_static: false
+     default_tag_size: 0.059
+     tags:
+       - id: 19
+         size: 0.05900000
+         pose:
+           position:
+             x: 0.00000000
+             y: -0.00000000
+             z: -0.00000000
+           rotation:
+             x: 0.00000000
+             y: -0.00000000
+             z: 0.00000000
+           position_noise:
+             x: 0.00050000
+             y: 0.00050000
+             z: 0.00050000
+           rotation_noise:
+             x: 0.00400000
+             y: 0.00400000
+             z: 0.00400000
+       - id: 17
+         size: 0.05900000
+         pose:
+           position:
+             x: -0.01868995
+             y: -0.07715707
+             z: 0.05928423
+           rotation:
+             x: -0.67741456
+             y: 0.71485123
+             z: 1.44071222
+           position_noise:
+             x: 0.00051484
+             y: 0.00063548
+             z: 0.00063287
+           rotation_noise:
+             x: 0.00402571
+             y: 0.00403694
+             z: 0.00402760
+       - id: 18
+         size: 0.05900000
+         pose:
+           position:
+             x: -0.10647549
+             y: -0.14805093
+             z: 0.05538669
+           rotation:
+             x: -1.11764201
+             y: -1.20534698
+             z: 1.19115992
+           position_noise:
+             x: 0.00071032
+             y: 0.00088610
+             z: 0.00079894
+           rotation_noise:
+             x: 0.00403840
+             y: 0.00401939
+             z: 0.00403338
+       - id: 16
+         size: 0.05900000
+         pose:
+           position:
+             x: 0.10329159
+             y: -0.11426628
+             z: 0.05700015
+           rotation:
+             x: -1.28576186
+             y: 1.10705972
+             z: -1.23871486
+           position_noise:
+             x: 0.00066428
+             y: 0.00081613
+             z: 0.00073295
+           rotation_noise:
+             x: 0.00405160
+             y: 0.00403929
+             z: 0.00404148
  - camera:
      is_static: false
      type: simple
