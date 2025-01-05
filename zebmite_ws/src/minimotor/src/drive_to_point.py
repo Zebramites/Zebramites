@@ -25,16 +25,16 @@ class DriveToPoint:
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
 
         self.cmd_pub = rospy.Publisher('/minibot/mecanum_drive_controller/cmd_vel', Twist, queue_size=10)
-        self.floor_frame = "tag_19"
+        self.floor_frame = "floor"
         self.robot_frame = "minifrc_robot"
         
         self.MINIMUM_OUTPUT_X = 0.1
         self.MAXIMUM_OUTPUT_X = 1.0
         self.MINIMUM_OUTPUT_Y = 0.1
         self.MAXIMUM_OUTPUT_Y = 1.0
-        self.kP_X = 2.5
-        self.kP_Y = 1.8
-        self.kP_theta = 0.2
+        self.kP_X = 0.5
+        self.kP_Y = 0.1
+        self.kP_theta = 0.05
         self.default_tolerance = 0.02
         self.angle_tolerance = 0.05
 
@@ -108,9 +108,9 @@ class DriveToPoint:
             # twist.linear.y *= abs(y - self.goal.pose.position.y) > self.tolerance
             twist.linear.x = x_command * math.cos(rotate_angle) - y_command * math.sin(rotate_angle)
             twist.linear.y = x_command * math.sin(rotate_angle) + y_command * math.cos(rotate_angle)
-            twist.angular.z = self.kP_theta * normalized_angle
-            twist.linear.x = -self.clamp(twist.linear.x, self.MINIMUM_OUTPUT_X, self.MAXIMUM_OUTPUT_X) * (abs(x - self.goal.pose.position.x) >= self.tolerance)
-            twist.linear.y = self.clamp(twist.linear.y, self.MINIMUM_OUTPUT_Y, self.MAXIMUM_OUTPUT_Y) * (abs(y - self.goal.pose.position.y) >= self.tolerance)
+            twist.angular.z = 0 * self.kP_theta * normalized_angle
+            twist.linear.x = self.clamp(twist.linear.x, self.MINIMUM_OUTPUT_X, self.MAXIMUM_OUTPUT_X) * (abs(x - self.goal.pose.position.x) >= self.tolerance)
+            twist.linear.y = -self.clamp(twist.linear.y, self.MINIMUM_OUTPUT_Y, self.MAXIMUM_OUTPUT_Y) * (abs(y - self.goal.pose.position.y) >= self.tolerance)
             rospy.loginfo(f"rotate_angle is {normalized_angle}")
             rospy.loginfo_throttle(0.5, f"driving to point: {self.goal.pose.position.x}, {self.goal.pose.position.y}, angle rotated is {rotate_angle}, current position: ({x}, {y}) @ {rotate_angle}, error = {(self.goal.pose.position.x - x)}, {(self.goal.pose.position.y - y)}, cmd_vel = {twist.linear.x}, {twist.linear.y}")
             self._feedback.x_error = self.goal.pose.position.x - x
